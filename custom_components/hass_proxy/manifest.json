@@ -1,0 +1,12 @@
+{
+  "domain": "hass_proxy",
+  "name": "Home Assistant Proxy",
+  "codeowners": [
+    "@dermotduffy"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/dermotduffy/hass-proxy",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/dermotduffy/hass-proxy/issues",
+  "version": "0.0.0"
+}
