@@ -1,12 +1,12 @@
 {
-  "domain": "integration_blueprint",
-  "name": "Integration blueprint",
+  "domain": "hass_proxy",
+  "name": "Home Assistant Proxy",
   "codeowners": [
-    "@ludeeus"
+    "@dermotduffy"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/ludeeus/integration_blueprint",
+  "documentation": "https://github.com/dermotduffy/hass-proxy",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/ludeeus/integration_blueprint/issues",
+  "issue_tracker": "https://github.com/dermotduffy/hass-proxy/issues",
   "version": "0.0.0"
 }
