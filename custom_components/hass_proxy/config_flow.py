@@ -1,4 +1,4 @@
-A"""Config flow for HASS Proxy."""
+"""Config flow for HASS Proxy."""
 
 from __future__ import annotations
 

@@ -39,7 +39,6 @@ async def async_unload_entry(
     entry: HASSProxyData,
 ) -> bool:
     """Handle removal of an entry."""
-
     LOGGER.info("HASSPROXY Unloading entry %s", entry.entry_id)
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
