@@ -1,81 +1,71 @@
-"""Adds config flow for Blueprint."""
+A"""Config flow for HASS Proxy."""
 
 from __future__ import annotations
 
 import voluptuous as vol
-from homeassistant import config_entries, data_entry_flow
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant import config_entries
+from homeassistant.core import callback
 from homeassistant.helpers import selector
-from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
-from .api import (
-    IntegrationBlueprintApiClient,
-    IntegrationBlueprintApiClientAuthenticationError,
-    IntegrationBlueprintApiClientCommunicationError,
-    IntegrationBlueprintApiClientError,
-)
-from .const import DOMAIN, LOGGER
+from .const import CONF_URLS, DOMAIN
 
 
-class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Blueprint."""
+class HASSProxyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg,misc]
+    """Config flow for HASS Proxy."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback  # type: ignore[misc]
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> HASSProxyOptionsFlowHandler:
+        """Get the Frigate Options flow."""
+        return HASSProxyOptionsFlowHandler(config_entry)
 
     async def async_step_user(
         self,
         user_input: dict | None = None,
-    ) -> data_entry_flow.FlowResult:
+    ) -> config_entries.ConfigFlowResult:
         """Handle a flow initialized by the user."""
-        _errors = {}
+        if self._async_current_entries():
+            return self.async_abort(reason="single_instance_allowed")
+
+        return self.async_create_entry(title="HASS Proxy", data=user_input or {})
+
+
+class HASSProxyOptionsFlowHandler(config_entries.OptionsFlow):
+    """Options flow for Blueprint."""
+
+    VERSION = 1
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize an options flow."""
+        self._config_entry = config_entry
+
+    async def async_step_init(
+        self,
+        user_input: dict | None = None,
+    ) -> config_entries.ConfigFlowResult:
+        """Manage the options."""
         if user_input is not None:
-            try:
-                await self._test_credentials(
-                    username=user_input[CONF_USERNAME],
-                    password=user_input[CONF_PASSWORD],
-                )
-            except IntegrationBlueprintApiClientAuthenticationError as exception:
-                LOGGER.warning(exception)
-                _errors["base"] = "auth"
-            except IntegrationBlueprintApiClientCommunicationError as exception:
-                LOGGER.error(exception)
-                _errors["base"] = "connection"
-            except IntegrationBlueprintApiClientError as exception:
-                LOGGER.exception(exception)
-                _errors["base"] = "unknown"
-            else:
-                return self.async_create_entry(
-                    title=user_input[CONF_USERNAME],
-                    data=user_input,
-                )
+            return self.async_create_entry(
+                data=user_input,
+            )
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
                     vol.Required(
-                        CONF_USERNAME,
-                        default=(user_input or {}).get(CONF_USERNAME, vol.UNDEFINED),
+                        CONF_URLS,
+                        default=(user_input or {}).get(CONF_URLS, vol.UNDEFINED),
                     ): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.TEXT,
-                        ),
-                    ),
-                    vol.Required(CONF_PASSWORD): selector.TextSelector(
-                        selector.TextSelectorConfig(
-                            type=selector.TextSelectorType.PASSWORD,
+                            multiline=True,
                         ),
                     ),
                 },
             ),
-            errors=_errors,
         )
-
-    async def _test_credentials(self, username: str, password: str) -> None:
-        """Validate credentials."""
-        client = IntegrationBlueprintApiClient(
-            username=username,
-            password=password,
-            session=async_create_clientsession(self.hass),
-        )
-        await client.async_get_data()
