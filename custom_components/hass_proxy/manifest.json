@@ -1,5 +1,4 @@
 {
-  :
   "domain": "hass_proxy",
   "name": "Home Assistant Proxy",
   "codeowners": [

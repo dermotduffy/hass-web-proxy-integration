@@ -9,6 +9,10 @@ from homeassistant.helpers import selector
 
 from .const import CONF_URLS, DOMAIN
 
+# SSL Validate
+# URLs?
+
+
 
 class HASSProxyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg,misc]
     """Config flow for HASS Proxy."""
