@@ -17,6 +17,9 @@ if TYPE_CHECKING:
 
     from .data import HASSProxyData
 
+
+from .proxy import async_setup as proxy_async_setup
+
 PLATFORMS: list[Platform] = []
 
 
@@ -30,6 +33,8 @@ async def async_setup_entry(
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
+
+    proxy_async_setup(hass)
 
     return True
 
