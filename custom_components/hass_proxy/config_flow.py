@@ -9,6 +9,9 @@ from homeassistant.helpers import selector
 
 from .const import CONF_URLS, DOMAIN
 
+# SSL Validate
+# URLs?
+
 
 class HASSProxyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg,misc]
     """Config flow for HASS Proxy."""
@@ -54,7 +57,7 @@ class HASSProxyOptionsFlowHandler(config_entries.OptionsFlow):
             )
 
         return self.async_show_form(
-            step_id="user",
+            step_id="init",
             data_schema=vol.Schema(
                 {
                     vol.Required(

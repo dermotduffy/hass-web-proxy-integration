@@ -5,8 +5,11 @@
     "@dermotduffy"
   ],
   "config_flow": true,
+  "dependencies": [
+    "http"
+  ],
   "documentation": "https://github.com/dermotduffy/hass-proxy",
-  "iot_class": "cloud_polling",
+  "iot_class": "local_push",
   "issue_tracker": "https://github.com/dermotduffy/hass-proxy/issues",
   "version": "0.0.0"
 }
