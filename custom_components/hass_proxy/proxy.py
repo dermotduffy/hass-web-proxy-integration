@@ -128,7 +128,6 @@ class ProxyView(HomeAssistantView):  # type: ignore[misc]
         ssl_context = ssl.create_default_context()
         ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2  # Set minimum TLS version
 
-
         ssl_context.set_ciphers("DEFAULT")
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
@@ -144,7 +143,6 @@ class ProxyView(HomeAssistantView):  # type: ignore[misc]
             data=data,
             # TODO: Configurable
             # TODO: below also?
-
         ) as result:
             headers = _response_header(result)
 
@@ -250,7 +248,7 @@ class WebsocketProxyView(ProxyView):
             protocols=req_protocols,
             autoclose=False,
             autoping=False,
-            # TODO
+            # TODO: Workon SSL for websocket proxy.
             ssl=False,
         ) as ws_to_target:
             await asyncio.wait(
