@@ -7,16 +7,55 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 
-from .const import CONF_URLS, DOMAIN
+from .const import (
+    CONF_DYNAMIC_URLS,
+    CONF_SSL_CIPHER_INSECURE,
+    CONF_SSL_CIPHER_INTERMEDIATE,
+    CONF_SSL_CIPHER_MODERN,
+    CONF_SSL_CIPHER_PYTHON_DEFAULT,
+    CONF_SSL_CIPHERS,
+    CONF_SSL_VERIFICATION,
+    CONF_URL_PATTERNS,
+    DEFAULT_OPTIONS,
+    DOMAIN,
+)
 
-# SSL Validate
-# URLs?
+OPTIONS_SCHEMA = vol.Schema(
+    {
+        vol.Optional(
+            CONF_URL_PATTERNS,
+        ): selector.TextSelector(
+            selector.TextSelectorConfig(
+                type=selector.TextSelectorType.TEXT,
+                multiple=True,
+            ),
+        ),
+        vol.Optional(
+            CONF_SSL_VERIFICATION,
+        ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
+        vol.Optional(
+            CONF_SSL_CIPHERS,
+        ): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=[
+                    CONF_SSL_CIPHER_PYTHON_DEFAULT,
+                    CONF_SSL_CIPHER_MODERN,
+                    CONF_SSL_CIPHER_INTERMEDIATE,
+                    CONF_SSL_CIPHER_INSECURE,
+                ],
+                mode=selector.SelectSelectorMode.DROPDOWN,
+                translation_key=CONF_SSL_CIPHERS,
+            )
+        ),
+        vol.Optional(
+            CONF_DYNAMIC_URLS,
+        ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
+    },
+)
 
 
 class HASSProxyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg,misc]
     """Config flow for HASS Proxy."""
-
-    VERSION = 1
 
     @staticmethod
     @callback  # type: ignore[misc]
@@ -34,13 +73,13 @@ class HASSProxyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):  # type: i
         if self._async_current_entries():
             return self.async_abort(reason="single_instance_allowed")
 
-        return self.async_create_entry(title="HASS Proxy", data=user_input or {})
+        return self.async_create_entry(
+            title="HASS Proxy", data=user_input or {}, options=DEFAULT_OPTIONS
+        )
 
 
 class HASSProxyOptionsFlowHandler(config_entries.OptionsFlow):
     """Options flow for Blueprint."""
-
-    VERSION = 1
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize an options flow."""
@@ -58,17 +97,7 @@ class HASSProxyOptionsFlowHandler(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_URLS,
-                        default=(user_input or {}).get(CONF_URLS, vol.UNDEFINED),
-                    ): selector.TextSelector(
-                        selector.TextSelectorConfig(
-                            type=selector.TextSelectorType.TEXT,
-                            multiline=True,
-                        ),
-                    ),
-                },
+            data_schema=self.add_suggested_values_to_schema(
+                OPTIONS_SCHEMA, self._config_entry.options
             ),
         )

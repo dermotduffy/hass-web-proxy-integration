@@ -1,5 +1,5 @@
 """
-Custom integration to add a tiny proxy to Home Assistant.
+Custom integration to add a small web proxy to Home Assistant.
 
 For more details about this integration, please refer to
 https://github.com/dermotduffy/hass-proxy
@@ -17,8 +17,7 @@ if TYPE_CHECKING:
 
     from .data import HASSProxyData
 
-
-from .proxy import async_setup as proxy_async_setup
+from .proxy import async_setup as async_proxy_setup
 
 PLATFORMS: list[Platform] = []
 
@@ -34,7 +33,7 @@ async def async_setup_entry(
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
-    proxy_async_setup(hass)
+    await async_proxy_setup(hass)
 
     return True
 
@@ -54,6 +53,4 @@ async def async_reload_entry(
 ) -> None:
     """Reload config entry."""
     LOGGER.info("HASSPROXY Reloading entry %s", entry.entry_id)
-
-    await async_unload_entry(hass, entry)
-    await async_setup_entry(hass, entry)
+    await hass.config_entries.async_reload(entry.entry_id)
