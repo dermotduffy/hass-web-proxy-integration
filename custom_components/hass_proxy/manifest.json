@@ -1,15 +1,12 @@
 {
   "domain": "hass_proxy",
   "name": "Home Assistant Proxy",
-  "codeowners": [
-    "@dermotduffy"
-  ],
+  "codeowners": ["@dermotduffy"],
   "config_flow": true,
-  "dependencies": [
-    "http"
-  ],
+  "dependencies": ["http"],
   "documentation": "https://github.com/dermotduffy/hass-proxy",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/dermotduffy/hass-proxy/issues",
+  "requirements": ["urlmatch==1.0.1"],
   "version": "0.0.0"
 }

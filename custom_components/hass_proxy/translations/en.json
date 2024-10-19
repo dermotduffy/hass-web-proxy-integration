@@ -9,10 +9,23 @@
   },
   "options": {
     "step": {
-      "user": {
+      "init": {
         "data": {
-          "urls": "Allowable URLs to proxy"
+          "dynamic_urls": "Enable dynamic link creation",
+          "ssl_verification": "Enable SSL Verification",
+          "ssl_ciphers": "SSL Ciphers",
+          "url_patterns": "URL pattern to proxy"
         }
+      }
+    }
+  },
+  "selector": {
+    "ssl_ciphers": {
+      "options": {
+        "insecure": "Insecure",
+        "intermediate": "Intermediate",
+        "modern": "Modern",
+        "python_default": "Default"
       }
     }
   }
