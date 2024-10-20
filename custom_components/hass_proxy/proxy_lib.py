@@ -23,19 +23,19 @@ if TYPE_CHECKING:
     from multidict import CIMultiDict
 
 
-class HASSProxyError(Exception):
+class HASSProxyLibError(Exception):
     """Exception to indicate a general Proxy error."""
 
 
-class HASSProxyBadRequestError(HASSProxyError):
+class HASSProxyLibBadRequestError(HASSProxyLibError):
     """Exception to indicate a bad request."""
 
 
-class HASSProxyForbiddenBadRequestError(HASSProxyError):
+class HASSProxyLibForbiddenBadRequestError(HASSProxyLibError):
     """Exception to indicate a bad request."""
 
 
-class HASSProxyNotFoundRequestError(HASSProxyError):
+class HASSProxyLibNotFoundRequestError(HASSProxyLibError):
     """Exception to indicate something being not found."""
 
 
@@ -90,11 +90,11 @@ class ProxyView(HomeAssistantView):  # type: ignore[misc]
         """Get the proxied URL or handle error."""
         try:
             url = self._get_proxied_url(request, **kwargs)
-        except HASSProxyForbiddenBadRequestError:
+        except HASSProxyLibForbiddenBadRequestError:
             return web.Response(status=HTTPStatus.FORBIDDEN)
-        except HASSProxyNotFoundRequestError:
+        except HASSProxyLibNotFoundRequestError:
             return web.Response(status=HTTPStatus.NOT_FOUND)
-        except HASSProxyBadRequestError:
+        except HASSProxyLibBadRequestError:
             return web.Response(status=HTTPStatus.BAD_REQUEST)
 
         if not url or not url.url:

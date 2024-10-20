@@ -11,7 +11,7 @@
     "step": {
       "init": {
         "data": {
-          "dynamic_urls": "Enable dynamic link creation",
+          "dynamic_urls": "Enable dynamic proxied URL creation",
           "ssl_verification": "Enable SSL Verification",
           "ssl_ciphers": "SSL Ciphers",
           "url_patterns": "URL pattern to proxy"
@@ -25,8 +25,13 @@
         "insecure": "Insecure",
         "intermediate": "Intermediate",
         "modern": "Modern",
-        "python_default": "Default"
+        "default": "Default"
       }
+    }
+  },
+  "exceptions": {
+    "url_id_not_found": {
+      "message": "URL ID \"{url_id}\" not found."
     }
   }
 }
