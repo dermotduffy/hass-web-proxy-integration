@@ -18,7 +18,7 @@ class DynamicProxiedURL:
     ssl_verification: bool
     ssl_ciphers: str
     open_limit: int
-    time_to_live: int
+    expiration: int
 
 
 type HASSProxyConfigEntry = ConfigEntry[HASSProxyData]

@@ -39,6 +39,10 @@ class HASSProxyLibNotFoundRequestError(HASSProxyLibError):
     """Exception to indicate something being not found."""
 
 
+class HASSProxyLibExpiredError(HASSProxyLibError):
+    """Exception to indicate a URL match that has expired."""
+
+
 # These proxies are inspired by:
 #  - https://github.com/home-assistant/supervisor/blob/main/supervisor/api/ingress.py
 #  - https://github.com/blakeblackshear/frigate-hass-integration/blob/master/custom_components/frigate/views.py
@@ -96,6 +100,8 @@ class ProxyView(HomeAssistantView):  # type: ignore[misc]
             return web.Response(status=HTTPStatus.NOT_FOUND)
         except HASSProxyLibBadRequestError:
             return web.Response(status=HTTPStatus.BAD_REQUEST)
+        except HASSProxyLibExpiredError:
+            return web.Response(status=HTTPStatus.GONE)
 
         if not url or not url.url:
             return web.Response(status=HTTPStatus.NOT_FOUND)
