@@ -178,7 +178,8 @@ class HAProxyView(ProxyView):
         url_to_proxy = urllib.parse.unquote(request.query["url"])
         has_expired_match = False
 
-        for proxied_url in self.get_dynamic_proxied_urls().values():
+        proxied_urls = self.get_dynamic_proxied_urls()
+        for [url_id, proxied_url] in proxied_urls.items():
             if urlmatch.urlmatch(
                 proxied_url.url_pattern,
                 url_to_proxy,
@@ -187,6 +188,11 @@ class HAProxyView(ProxyView):
                 if proxied_url.expiration and proxied_url.expiration < time.time():
                     has_expired_match = True
                     continue
+
+                if proxied_url.open_limit:
+                    proxied_url.open_limit -= 1
+                    if proxied_url.open_limit == 0:
+                        del proxied_urls[url_id]
 
                 return ProxiedURL(
                     url=url_to_proxy,
