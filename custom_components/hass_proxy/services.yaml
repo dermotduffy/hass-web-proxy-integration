@@ -1,0 +1,71 @@
+---
+create_proxied_url:
+  name: Create a proxied URL
+  description: >
+    Dynamically creates a proxied URL or pattern of proxied URLs that will be
+    proxied through Home Assistant.
+  fields:
+    url_pattern:
+      name: URL Pattern
+      description: A URL or pattern of URLs to proxy through Home Assistant.
+      required: true
+      example: https://*.backends.behind.homeassistant
+      selector:
+        text:
+    url_id:
+      name: URL ID
+      description: An arbitrary ID for the proxied URL that can be used to reference it later.
+      example: 9064c544-1544-4fe5-817e-6974a120a391
+      required: false
+      selector:
+        text:
+    ssl_verification:
+      name: SSL Verification
+      description: Whether SSL certification verification is enabled for the downstream connection.
+      required: false
+      selector:
+        boolean:
+    ssl_ciphers:
+      name: SSL Ciphers
+      description: Which SSL ciphers to use for the downstream connection.
+      required: false
+      selector:
+        select:
+          options:
+            - "default"
+            - "modern"
+            - "intermediate"
+            - "insecure"
+          translation_key: ssl_ciphers
+          mode: dropdown
+    open_limit:
+      name: Open Limit
+      description: The number of times this proxied URL can be accessed before it is automatically removed.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: times
+    time_to_live:
+      name: Time to Live
+      description: The number of seconds this proxied URL will be available before it is automatically removed.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100000
+          unit_of_measurement: seconds
+
+delete_proxied_url:
+  name: Delete a proxied URL
+  description: >
+    Delete a dynamically created proxied URL.
+  fields:
+    url_id:
+      name: URL ID
+      description: The ID for the proxied URL to delete.
+      example: 9064c544-1544-4fe5-817e-6974a120a391
+      required: true
+      selector:
+        text:

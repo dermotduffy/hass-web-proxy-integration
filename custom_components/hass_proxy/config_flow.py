@@ -9,11 +9,11 @@ from homeassistant.helpers import selector
 
 from .const import (
     CONF_DYNAMIC_URLS,
-    CONF_SSL_CIPHER_INSECURE,
-    CONF_SSL_CIPHER_INTERMEDIATE,
-    CONF_SSL_CIPHER_MODERN,
-    CONF_SSL_CIPHER_PYTHON_DEFAULT,
     CONF_SSL_CIPHERS,
+    CONF_SSL_CIPHERS_DEFAULT,
+    CONF_SSL_CIPHERS_INSECURE,
+    CONF_SSL_CIPHERS_INTERMEDIATE,
+    CONF_SSL_CIPHERS_MODERN,
     CONF_SSL_VERIFICATION,
     CONF_URL_PATTERNS,
     DEFAULT_OPTIONS,
@@ -38,10 +38,10 @@ OPTIONS_SCHEMA = vol.Schema(
         ): selector.SelectSelector(
             selector.SelectSelectorConfig(
                 options=[
-                    CONF_SSL_CIPHER_PYTHON_DEFAULT,
-                    CONF_SSL_CIPHER_MODERN,
-                    CONF_SSL_CIPHER_INTERMEDIATE,
-                    CONF_SSL_CIPHER_INSECURE,
+                    CONF_SSL_CIPHERS_DEFAULT,
+                    CONF_SSL_CIPHERS_MODERN,
+                    CONF_SSL_CIPHERS_INTERMEDIATE,
+                    CONF_SSL_CIPHERS_INSECURE,
                 ],
                 mode=selector.SelectSelectorMode.DROPDOWN,
                 translation_key=CONF_SSL_CIPHERS,
