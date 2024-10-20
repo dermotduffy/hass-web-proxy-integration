@@ -27,6 +27,7 @@ from custom_components.hass_proxy.data import (
     HASSProxyData,
 )
 from custom_components.hass_proxy.proxy_lib import (
+    HASSProxyLibExpiredError,
     HASSProxyLibNotFoundRequestError,
     ProxiedURL,
     ProxyView,
@@ -109,7 +110,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HASSProxyConfigEntry) ->
             ssl_verification=call.data["ssl_verification"],
             ssl_ciphers=call.data["ssl_ciphers"],
             open_limit=call.data["open_limit"],
-            time_to_live=time.time() + ttl if ttl else 0,
+            expiration=time.time() + ttl if ttl else 0,
         )
 
     def delete_proxied_url(call: ServiceCall) -> None:
@@ -141,10 +142,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: HASSProxyConfigEntry) ->
 
 
 @callback
-async def async_unload_entry(hass: HomeAssistant, _entry: HASSProxyConfigEntry) -> None:
+async def async_unload_entry(hass: HomeAssistant, entry: HASSProxyConfigEntry) -> None:
     """Unload the proxy entry."""
-    hass.services.async_remove(DOMAIN, SERVICE_CREATE_PROXIED_URL)
-    hass.services.async_remove(DOMAIN, SERVICE_DELETE_PROXIED_URL)
+    if entry.options.get(CONF_DYNAMIC_URLS):
+        hass.services.async_remove(DOMAIN, SERVICE_CREATE_PROXIED_URL)
+        hass.services.async_remove(DOMAIN, SERVICE_DELETE_PROXIED_URL)
 
 
 class HAProxyView(ProxyView):
@@ -174,6 +176,7 @@ class HAProxyView(ProxyView):
 
         options = self._get_options()
         url_to_proxy = urllib.parse.unquote(request.query["url"])
+        has_expired_match = False
 
         for proxied_url in self.get_dynamic_proxied_urls().values():
             if urlmatch.urlmatch(
@@ -181,6 +184,10 @@ class HAProxyView(ProxyView):
                 url_to_proxy,
                 path_required=False,
             ):
+                if proxied_url.expiration and proxied_url.expiration < time.time():
+                    has_expired_match = True
+                    continue
+
                 return ProxiedURL(
                     url=url_to_proxy,
                     ssl_context=self._get_ssl_context(proxied_url.ssl_ciphers)
@@ -200,6 +207,8 @@ class HAProxyView(ProxyView):
                     else self._get_ssl_context_no_verify(ssl_cipher),
                 )
 
+        if has_expired_match:
+            raise HASSProxyLibExpiredError
         raise HASSProxyLibNotFoundRequestError
 
     def _get_ssl_context_no_verify(
