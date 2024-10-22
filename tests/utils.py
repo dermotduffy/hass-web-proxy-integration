@@ -89,7 +89,7 @@ class FakeAsyncContextManager:
 
 
 @callback
-async def register_test_view(
+async def register_test_view(  # noqa: PLR0913
     hass: HomeAssistant,
     proxied_url: ProxiedURL | None = None,
     exception: Exception | None = None,
