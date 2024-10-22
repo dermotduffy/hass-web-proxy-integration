@@ -201,9 +201,9 @@ async def test_headers(
     hass_client_no_auth: Any,
 ) -> None:
     """Test proxy headers are added and respected."""
-    unauthenticated_hass_client = await hass_client_no_auth()
-
     await register_test_view(hass, proxied_url=ProxiedURL(url=f"{local_server}ok"))
+
+    unauthenticated_hass_client = await hass_client_no_auth()
 
     resp = await unauthenticated_hass_client.get(
         TEST_PROXY_URL,
