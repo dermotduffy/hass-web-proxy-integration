@@ -1,0 +1,40 @@
+---
+# Conventional Commit related labels (match entries in `semantics-prs.yml`).
+- name: bug
+  description: Something isn't working
+  color: d73a4a
+- name: chore
+  description: Chore
+  color: bfdadc
+- name: ci
+  description: Continuous Integration
+  color: 4a97d6
+- name: documentation
+  description: Improvements or additions to documentation
+  color: 0075ca
+- name: feature
+  description: New feature or request
+  color: a2eeef
+- name: performance
+  description: Performance
+  color: '016175'
+- name: refactoring
+  description: Refactoring
+  color: ef67c4
+- name: testing
+  description: Testing
+  color: b1fc6f
+
+# Other labels
+- name: breaking
+  description: Breaking Changes
+  color: bfd4f2
+- name: help wanted
+  description: Extra attention is needed
+  color: 008672
+- name: question
+  description: Further information is requested
+  color: d876e3
+- name: waiting
+  description: Waiting for something
+  color: daa036

@@ -1,0 +1,20 @@
+---
+name: Semantic PR
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+jobs:
+  main:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ytanikin/PRConventionalCommits@1.2.0
+        with:
+          task_types: '["feat","fix","docs","test","ci","refactor","perf","chore"]'
+          custom_labels: '{"feat": "feature", "fix": "bug", "docs": "documentation", "test": "testing", "ci": "ci", "refactor": "refactoring", "perf": "performance", "chore": "chore"}'
