@@ -35,12 +35,16 @@ from custom_components.hass_proxy.proxy_lib import (
 
 from .const import (
     CONF_DYNAMIC_URLS,
+    CONF_OPEN_LIMIT,
     CONF_SSL_CIPHERS,
     CONF_SSL_CIPHERS_DEFAULT,
     CONF_SSL_CIPHERS_INSECURE,
     CONF_SSL_CIPHERS_INTERMEDIATE,
     CONF_SSL_CIPHERS_MODERN,
     CONF_SSL_VERIFICATION,
+    CONF_TTL,
+    CONF_URL_ID,
+    CONF_URL_PATTERN,
     SERVICE_CREATE_PROXIED_URL,
     SERVICE_DELETE_PROXIED_URL,
 )
@@ -57,18 +61,18 @@ if TYPE_CHECKING:
 
 CREATE_PROXIED_URL_SCHEMA = vol.Schema(
     {
-        vol.Required("url_pattern"): cv.string,
-        vol.Optional("url_id"): cv.string,
-        vol.Optional("ssl_verification", default=True): cv.boolean,
-        vol.Optional("ssl_ciphers", default=CONF_SSL_CIPHERS_DEFAULT): vol.Any(
+        vol.Required(CONF_URL_PATTERN): cv.string,
+        vol.Optional(CONF_URL_ID): cv.string,
+        vol.Optional(CONF_SSL_VERIFICATION, default=True): cv.boolean,
+        vol.Optional(CONF_SSL_CIPHERS, default=CONF_SSL_CIPHERS_DEFAULT): vol.Any(
             None,
             CONF_SSL_CIPHERS_INSECURE,
             CONF_SSL_CIPHERS_MODERN,
             CONF_SSL_CIPHERS_INTERMEDIATE,
             CONF_SSL_CIPHERS_DEFAULT,
         ),
-        vol.Optional("open_limit", default=1): cv.positive_int,
-        vol.Optional("time_to_live", default=60): cv.positive_int,
+        vol.Optional(CONF_OPEN_LIMIT, default=1): cv.positive_int,
+        vol.Optional(CONF_TTL, default=60): cv.positive_int,
     },
     required=True,
 )
@@ -103,7 +107,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HASSProxyConfigEntry) ->
     def create_proxied_url(call: ServiceCall) -> None:
         """Create a proxied URL."""
         url_id = call.data.get("url_id") or str(uuid.uuid4())
-        ttl = call.data["time_to_live"]
+        ttl = call.data["ttl"]
 
         entry.runtime_data.dynamic_proxied_urls[url_id] = DynamicProxiedURL(
             url_pattern=call.data["url_pattern"],

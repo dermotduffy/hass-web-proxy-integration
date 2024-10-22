@@ -18,6 +18,10 @@ CONF_SSL_CIPHERS_DEFAULT: Final = "default"
 type HASSProxySSLCiphers = Literal["insecure", "modern", "intermediate", "default"]
 
 CONF_DYNAMIC_URLS: Final = "dynamic_urls"
+CONF_OPEN_LIMIT: Final = "open_limit"
+CONF_TTL: Final = "ttl"
+CONF_URL_ID: Final = "url_id"
+CONF_URL_PATTERN: Final = "url_pattern"
 CONF_URL_PATTERNS: Final = "url_patterns"
 
 SERVICE_CREATE_PROXIED_URL: Final = "create_proxied_url"
