@@ -21,6 +21,12 @@ ignore = [
     "FIX002",
 ]
 
+[lint.extend-per-file-ignores]
+    "tests/**/*.py" = [
+        "S101", # Allow asserts allowed in tests.
+        "ARG",  # All unused arguments for fixtures.
+    ]
+
 [lint.flake8-pytest-style]
 fixture-parentheses = false
 

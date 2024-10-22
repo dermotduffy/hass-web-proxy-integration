@@ -47,7 +47,7 @@ create_proxied_url:
           min: 0
           max: 100
           unit_of_measurement: times
-    time_to_live:
+    ttl:
       name: Time to Live
       description: The number of seconds this proxied URL will be available before it is automatically removed.
       required: false

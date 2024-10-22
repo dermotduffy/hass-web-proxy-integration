@@ -31,7 +31,7 @@ class HASSProxyLibBadRequestError(HASSProxyLibError):
     """Exception to indicate a bad request."""
 
 
-class HASSProxyLibForbiddenBadRequestError(HASSProxyLibError):
+class HASSProxyLibForbiddenRequestError(HASSProxyLibError):
     """Exception to indicate a bad request."""
 
 
@@ -94,7 +94,7 @@ class ProxyView(HomeAssistantView):  # type: ignore[misc]
         """Get the proxied URL or handle error."""
         try:
             url = self._get_proxied_url(request, **kwargs)
-        except HASSProxyLibForbiddenBadRequestError:
+        except HASSProxyLibForbiddenRequestError:
             return web.Response(status=HTTPStatus.FORBIDDEN)
         except HASSProxyLibNotFoundRequestError:
             return web.Response(status=HTTPStatus.NOT_FOUND)
@@ -201,8 +201,11 @@ class WebsocketProxyView(ProxyView):
         source_header = _init_header(request)
 
         # TODO: Why is this only here?
-        if request.query_string:
-            url = f"{url_or_response.url}?{request.query_string}"
+        url = (
+            url_or_response.url
+            if not request.query_string
+            else f"{url_or_response.url}?{request.query_string}"
+        )
 
         async with self._websession.ws_connect(
             url,
