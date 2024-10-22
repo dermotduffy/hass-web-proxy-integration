@@ -37,9 +37,7 @@ async def test_entry_update(hass: HomeAssistant) -> None:
     """Test updating a config entry."""
     config_entry = await setup_mock_hass_proxy_config_entry(hass)
 
-    assert hass.config_entries.async_update_entry(
-        entry=config_entry, title="new title"
-    )
+    assert hass.config_entries.async_update_entry(entry=config_entry, title="new title")
     await hass.async_block_till_done()
 
     # Entry will have been reloaded, and config will be re-fetched.
