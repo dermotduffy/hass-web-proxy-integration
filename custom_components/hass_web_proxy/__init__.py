@@ -9,8 +9,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .const import LOGGER
-
 if TYPE_CHECKING:
     from homeassistant.const import Platform
     from homeassistant.core import HomeAssistant
