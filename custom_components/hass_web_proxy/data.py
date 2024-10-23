@@ -1,4 +1,4 @@
-"""Custom types for hass_proxy."""
+"""Custom types for HASS Web Proxy."""
 
 from __future__ import annotations
 
@@ -21,12 +21,12 @@ class DynamicProxiedURL:
     expiration: int
 
 
-type HASSProxyConfigEntry = ConfigEntry[HASSProxyData]
+type HASSWebProxyConfigEntry = ConfigEntry[HASSWebProxyData]
 
 
 @dataclass
-class HASSProxyData:
-    """Data for the HASS Proxy integration."""
+class HASSWebProxyData:
+    """Data for the HASS Web Proxy integration."""
 
     integration: Integration
     dynamic_proxied_urls: dict[str, DynamicProxiedURL]

@@ -11,12 +11,12 @@ import aiohttp
 import pytest
 from aiohttp import hdrs
 
-from custom_components.hass_proxy import proxy_lib
-from custom_components.hass_proxy.proxy_lib import (
-    HASSProxyLibBadRequestError,
-    HASSProxyLibExpiredError,
-    HASSProxyLibForbiddenRequestError,
-    HASSProxyLibNotFoundRequestError,
+from custom_components.hass_web_proxy import proxy_lib
+from custom_components.hass_web_proxy.proxy_lib import (
+    HASSWebProxyLibBadRequestError,
+    HASSWebProxyLibExpiredError,
+    HASSWebProxyLibForbiddenRequestError,
+    HASSWebProxyLibNotFoundRequestError,
     ProxiedURL,
     WebsocketProxyView,
 )
@@ -75,7 +75,7 @@ async def test_proxy_view_http_not_found(
     hass_client: Any,
 ) -> None:
     """Test that a missing URL causes NOT_FOUND."""
-    await register_test_view(hass, exception=HASSProxyLibNotFoundRequestError)
+    await register_test_view(hass, exception=HASSWebProxyLibNotFoundRequestError)
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(TEST_PROXY_URL)
@@ -88,7 +88,7 @@ async def test_proxy_view_http_forbidden(
     hass_client: Any,
 ) -> None:
     """Test that a forbidden URL causes FORBIDDEN."""
-    await register_test_view(hass, exception=HASSProxyLibForbiddenRequestError)
+    await register_test_view(hass, exception=HASSWebProxyLibForbiddenRequestError)
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(TEST_PROXY_URL)
@@ -101,7 +101,7 @@ async def test_proxy_view_http_gone(
     hass_client: Any,
 ) -> None:
     """Test that an old URL causes GONE."""
-    await register_test_view(hass, exception=HASSProxyLibExpiredError)
+    await register_test_view(hass, exception=HASSWebProxyLibExpiredError)
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(TEST_PROXY_URL)
@@ -114,7 +114,7 @@ async def test_proxy_view_http_bad_request(
     hass_client: Any,
 ) -> None:
     """Test that an bad request causes BAD_REQUEST."""
-    await register_test_view(hass, exception=HASSProxyLibBadRequestError)
+    await register_test_view(hass, exception=HASSWebProxyLibBadRequestError)
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(TEST_PROXY_URL)
@@ -146,7 +146,7 @@ async def test_proxy_view_aiohttp_write_error(
     authenticated_hass_client = await hass_client()
 
     with patch(
-        "custom_components.hass_proxy.proxy_lib.web.StreamResponse",
+        "custom_components.hass_web_proxy.proxy_lib.web.StreamResponse",
         new=ClientErrorStreamResponse,
     ):
         await authenticated_hass_client.get(TEST_PROXY_URL)
@@ -165,7 +165,7 @@ async def test_proxy_view_aiohttp_connection_reset_error(
     authenticated_hass_client = await hass_client()
 
     with patch(
-        "custom_components.hass_proxy.proxy_lib.web.StreamResponse",
+        "custom_components.hass_web_proxy.proxy_lib.web.StreamResponse",
         new=ConnectionResetStreamResponse,
     ):
         await authenticated_hass_client.get(TEST_PROXY_URL)
@@ -277,7 +277,7 @@ async def test_proxy_view_websocket_connection_reset(
     authenticated_hass_client = await hass_client()
 
     with patch(
-        "custom_components.hass_proxy.proxy_lib.aiohttp.ClientWebSocketResponse.send_str",
+        "custom_components.hass_web_proxy.proxy_lib.aiohttp.ClientWebSocketResponse.send_str",
         new=send_str,
     ):
         async with authenticated_hass_client.ws_connect(TEST_PROXY_URL) as ws:
@@ -291,7 +291,7 @@ async def test_proxy_view_websocket_non_ok(
 ) -> None:
     """Test that an invalid ProxiedURL for a websocket proxy is handled."""
     await register_test_view(
-        hass, exception=HASSProxyLibNotFoundRequestError, kind=WebsocketProxyView
+        hass, exception=HASSWebProxyLibNotFoundRequestError, kind=WebsocketProxyView
     )
 
     authenticated_hass_client = await hass_client()

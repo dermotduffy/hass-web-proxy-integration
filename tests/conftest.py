@@ -1,4 +1,4 @@
-"""Global fixtures for HASS Proxy component integration."""
+"""Global fixtures for HASS Web Proxy integration."""
 
 pytest_plugins = [
     "pytest_homeassistant_custom_component",

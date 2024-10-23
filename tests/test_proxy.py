@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 from homeassistant.exceptions import ServiceValidationError
 
-from custom_components.hass_proxy.const import (
+from custom_components.hass_web_proxy.const import (
     CONF_DYNAMIC_URLS,
     CONF_OPEN_LIMIT,
     CONF_SSL_CIPHERS,
@@ -23,12 +23,12 @@ from custom_components.hass_proxy.const import (
     SERVICE_CREATE_PROXIED_URL,
     SERVICE_DELETE_PROXIED_URL,
 )
-from custom_components.hass_proxy.proxy import (
+from custom_components.hass_web_proxy.proxy import (
     async_setup_entry as async_proxy_setup_entry,
 )
 from tests import (
-    create_mock_hass_proxy_config_entry,
-    setup_mock_hass_proxy_config_entry,
+    create_mock_hass_web_proxy_config_entry,
+    setup_mock_hass_web_proxy_config_entry,
 )
 
 if TYPE_CHECKING:
@@ -55,19 +55,19 @@ async def test_proxy_view_ok(
     hass_client: Any,
 ) -> None:
     """Test that a valid URL causes OK."""
-    config_entry = create_mock_hass_proxy_config_entry(
+    config_entry = create_mock_hass_web_proxy_config_entry(
         hass,
         {
             **TEST_OPTIONS,
             CONF_URL_PATTERNS: [f"{local_server}ok"],
         },
     )
-    await setup_mock_hass_proxy_config_entry(hass, config_entry)
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
     await async_proxy_setup_entry(hass, config_entry)
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
     )
     assert resp.status == HTTPStatus.OK
 
@@ -78,13 +78,13 @@ async def test_proxy_view_without_url_parameter(
     hass_client: Any,
 ) -> None:
     """Verify proxying without a url querystring parameter."""
-    config_entry = create_mock_hass_proxy_config_entry(hass)
+    config_entry = create_mock_hass_web_proxy_config_entry(hass)
 
-    await setup_mock_hass_proxy_config_entry(hass, config_entry)
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
     await async_proxy_setup_entry(hass, config_entry)
 
     authenticated_hass_client = await hass_client()
-    resp = await authenticated_hass_client.get("/api/hass_proxy/v0/")
+    resp = await authenticated_hass_client.get("/api/hass_web_proxy/v0/")
     assert resp.status == HTTPStatus.NOT_FOUND
 
 
@@ -94,19 +94,19 @@ async def test_proxy_view_no_matching_url(
     hass_client: Any,
 ) -> None:
     """Verify proxying without a matching URL."""
-    config_entry = create_mock_hass_proxy_config_entry(
+    config_entry = create_mock_hass_web_proxy_config_entry(
         hass,
         {
             **TEST_OPTIONS,
             CONF_URL_PATTERNS: [],
         },
     )
-    await setup_mock_hass_proxy_config_entry(hass, config_entry)
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
     await async_proxy_setup_entry(hass, config_entry)
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
     )
     assert resp.status == HTTPStatus.NOT_FOUND
 
@@ -117,7 +117,7 @@ async def test_proxy_view_ssl_insecure_no_verify(
     hass_client: Any,
 ) -> None:
     """Verify proxying with insecure SSL settings."""
-    config_entry = create_mock_hass_proxy_config_entry(
+    config_entry = create_mock_hass_web_proxy_config_entry(
         hass,
         {
             **TEST_OPTIONS,
@@ -126,12 +126,12 @@ async def test_proxy_view_ssl_insecure_no_verify(
             CONF_SSL_VERIFICATION: False,
         },
     )
-    await setup_mock_hass_proxy_config_entry(hass, config_entry)
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
     await async_proxy_setup_entry(hass, config_entry)
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
     )
     assert resp.status == HTTPStatus.OK
 
@@ -142,9 +142,9 @@ async def test_proxy_view_dynamic_url_ok(
     hass_client: Any,
 ) -> None:
     """Test that a valid dynamic URL causes OK."""
-    config_entry = create_mock_hass_proxy_config_entry(hass, TEST_OPTIONS)
+    config_entry = create_mock_hass_web_proxy_config_entry(hass, TEST_OPTIONS)
 
-    await setup_mock_hass_proxy_config_entry(hass, config_entry)
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
     await async_proxy_setup_entry(hass, config_entry)
 
     await hass.services.async_call(
@@ -159,7 +159,7 @@ async def test_proxy_view_dynamic_url_ok(
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
     )
     assert resp.status == HTTPStatus.OK
 
@@ -170,9 +170,9 @@ async def test_proxy_view_dynamic_url_delete(
     hass_client: Any,
 ) -> None:
     """Test that a dynamic URL can be deleted."""
-    config_entry = create_mock_hass_proxy_config_entry(hass, TEST_OPTIONS)
+    config_entry = create_mock_hass_web_proxy_config_entry(hass, TEST_OPTIONS)
 
-    await setup_mock_hass_proxy_config_entry(hass, config_entry)
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
     await async_proxy_setup_entry(hass, config_entry)
 
     await hass.services.async_call(
@@ -196,16 +196,16 @@ async def test_proxy_view_dynamic_url_delete(
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
     )
     assert resp.status == HTTPStatus.NOT_FOUND
 
 
 async def test_proxy_view_dynamic_url_delete_not_existant(hass: HomeAssistant) -> None:
     """Test that an invalid dynamic URL cannot be deleted."""
-    config_entry = create_mock_hass_proxy_config_entry(hass, TEST_OPTIONS)
+    config_entry = create_mock_hass_web_proxy_config_entry(hass, TEST_OPTIONS)
 
-    await setup_mock_hass_proxy_config_entry(hass, config_entry)
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
     await async_proxy_setup_entry(hass, config_entry)
 
     with pytest.raises(ServiceValidationError) as service_validation_error:
@@ -227,9 +227,9 @@ async def test_proxy_view_dynamic_url_open_limit(
     hass_client: Any,
 ) -> None:
     """Test that a dynamic URL respects open limits."""
-    config_entry = create_mock_hass_proxy_config_entry(hass, TEST_OPTIONS)
+    config_entry = create_mock_hass_web_proxy_config_entry(hass, TEST_OPTIONS)
 
-    await setup_mock_hass_proxy_config_entry(hass, config_entry)
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
     await async_proxy_setup_entry(hass, config_entry)
 
     await hass.services.async_call(
@@ -245,12 +245,12 @@ async def test_proxy_view_dynamic_url_open_limit(
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
     )
     assert resp.status == HTTPStatus.OK
 
     resp = await authenticated_hass_client.get(
-        f"/api/hass_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
     )
     assert resp.status == HTTPStatus.NOT_FOUND
 
@@ -263,9 +263,9 @@ async def test_proxy_view_dynamic_url_ttl(
     freezer: Any,
 ) -> None:
     """Test that a dynamic URL respects ttl."""
-    config_entry = create_mock_hass_proxy_config_entry(hass, TEST_OPTIONS)
+    config_entry = create_mock_hass_web_proxy_config_entry(hass, TEST_OPTIONS)
 
-    await setup_mock_hass_proxy_config_entry(hass, config_entry)
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
     await async_proxy_setup_entry(hass, config_entry)
 
     await hass.services.async_call(
@@ -281,7 +281,7 @@ async def test_proxy_view_dynamic_url_ttl(
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
     )
     assert resp.status == HTTPStatus.OK
 
@@ -289,6 +289,6 @@ async def test_proxy_view_dynamic_url_ttl(
     freezer.move_to(now + datetime.timedelta(seconds=10 + 1))
 
     resp = await authenticated_hass_client.get(
-        f"/api/hass_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
     )
     assert resp.status == HTTPStatus.GONE

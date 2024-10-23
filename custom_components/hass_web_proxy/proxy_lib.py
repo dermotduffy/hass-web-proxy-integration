@@ -1,4 +1,4 @@
-"""HASS Proxy proxy."""
+"""HASS Web Proxy proxy."""
 
 from __future__ import annotations
 
@@ -23,23 +23,23 @@ if TYPE_CHECKING:
     from multidict import CIMultiDict
 
 
-class HASSProxyLibError(Exception):
+class HASSWebProxyLibError(Exception):
     """Exception to indicate a general Proxy error."""
 
 
-class HASSProxyLibBadRequestError(HASSProxyLibError):
+class HASSWebProxyLibBadRequestError(HASSWebProxyLibError):
     """Exception to indicate a bad request."""
 
 
-class HASSProxyLibForbiddenRequestError(HASSProxyLibError):
+class HASSWebProxyLibForbiddenRequestError(HASSWebProxyLibError):
     """Exception to indicate a bad request."""
 
 
-class HASSProxyLibNotFoundRequestError(HASSProxyLibError):
+class HASSWebProxyLibNotFoundRequestError(HASSWebProxyLibError):
     """Exception to indicate something being not found."""
 
 
-class HASSProxyLibExpiredError(HASSProxyLibError):
+class HASSWebProxyLibExpiredError(HASSWebProxyLibError):
     """Exception to indicate a URL match that has expired."""
 
 
@@ -66,7 +66,7 @@ class ProxyView(HomeAssistantView):  # type: ignore[misc]
         self,
         websession: aiohttp.ClientSession,
     ) -> None:
-        """Initialize the HASS Proxy view."""
+        """Initialize the HASS Web Proxy view."""
         self._websession = websession
 
     async def get(
@@ -94,13 +94,13 @@ class ProxyView(HomeAssistantView):  # type: ignore[misc]
         """Get the proxied URL or handle error."""
         try:
             url = self._get_proxied_url(request, **kwargs)
-        except HASSProxyLibForbiddenRequestError:
+        except HASSWebProxyLibForbiddenRequestError:
             return web.Response(status=HTTPStatus.FORBIDDEN)
-        except HASSProxyLibNotFoundRequestError:
+        except HASSWebProxyLibNotFoundRequestError:
             return web.Response(status=HTTPStatus.NOT_FOUND)
-        except HASSProxyLibBadRequestError:
+        except HASSWebProxyLibBadRequestError:
             return web.Response(status=HTTPStatus.BAD_REQUEST)
-        except HASSProxyLibExpiredError:
+        except HASSWebProxyLibExpiredError:
             return web.Response(status=HTTPStatus.GONE)
 
         if not url or not url.url:

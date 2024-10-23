@@ -1,4 +1,4 @@
-"""Config flow for HASS Proxy."""
+"""Config flow for HASS Web Proxy."""
 
 from __future__ import annotations
 
@@ -54,16 +54,16 @@ OPTIONS_SCHEMA = vol.Schema(
 )
 
 
-class HASSProxyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg,misc]
-    """Config flow for HASS Proxy."""
+class HASSWebProxyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg,misc]
+    """Config flow for HASS Web Proxy."""
 
     @staticmethod
     @callback  # type: ignore[misc]
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
-    ) -> HASSProxyOptionsFlowHandler:
+    ) -> HASSWebProxyOptionsFlowHandler:
         """Get the Frigate Options flow."""
-        return HASSProxyOptionsFlowHandler(config_entry)
+        return HASSWebProxyOptionsFlowHandler(config_entry)
 
     async def async_step_user(
         self,
@@ -74,11 +74,11 @@ class HASSProxyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):  # type: i
             return self.async_abort(reason="single_instance_allowed")
 
         return self.async_create_entry(
-            title="HASS Proxy", data=user_input or {}, options=DEFAULT_OPTIONS
+            title="Home Assistant Web Proxy", data=user_input or {}, options=DEFAULT_OPTIONS
         )
 
 
-class HASSProxyOptionsFlowHandler(config_entries.OptionsFlow):
+class HASSWebProxyOptionsFlowHandler(config_entries.OptionsFlow):
     """Options flow for Blueprint."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:

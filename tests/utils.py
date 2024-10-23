@@ -15,7 +15,7 @@ from pytest_homeassistant_custom_component.plugins import (
     enable_custom_integrations,  # noqa: F401  # noqa: F401
 )
 
-from custom_components.hass_proxy.proxy_lib import ProxiedURL, ProxyView
+from custom_components.hass_web_proxy.proxy_lib import ProxiedURL, ProxyView
 
 TEST_PROXY_URL = "/api/test_proxy"
 TEST_PROXY_NAME = "api:test_proxy"
@@ -52,7 +52,7 @@ async def setup_http(hass: Any) -> None:
 
 
 @pytest.fixture(autouse=True)
-def hass_proxy_fixture(
+def hass_web_proxy_fixture(
     socket_enabled: Any,
     skip_notifications: Any,
     enable_custom_integrations: Any,  # noqa: F811

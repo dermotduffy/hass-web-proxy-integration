@@ -8,7 +8,7 @@ norecursedirs = [
     ".git",
     "testing_config",
 ]
-addopts = "--timeout=10 --cov-report=xml:coverage.xml --cov-report=term-missing --cov=custom_components.hass_proxy --cov-fail-under=100"
+addopts = "--timeout=10 --cov-report=xml:coverage.xml --cov-report=term-missing --cov=custom_components.hass_web_proxy --cov-fail-under=100"
 
 [tool.coverage.report]
 exclude_also = [
