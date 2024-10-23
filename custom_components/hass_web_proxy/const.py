@@ -1,9 +1,9 @@
-"""Constants for hass_proxy."""
+"""Constants for HASS Web Proxy."""
 
 from logging import Logger, getLogger
 from typing import Final, Literal
 
-DOMAIN: Final = "hass_proxy"
+DOMAIN: Final = "hass_web_proxy"
 
 LOGGER: Logger = getLogger(__package__)
 
@@ -15,7 +15,7 @@ CONF_SSL_CIPHERS_MODERN: Final = "modern"
 CONF_SSL_CIPHERS_INTERMEDIATE: Final = "intermediate"
 CONF_SSL_CIPHERS_DEFAULT: Final = "default"
 
-type HASSProxySSLCiphers = Literal["insecure", "modern", "intermediate", "default"]
+type HASSWebProxySSLCiphers = Literal["insecure", "modern", "intermediate", "default"]
 
 CONF_DYNAMIC_URLS: Final = "dynamic_urls"
 CONF_OPEN_LIMIT: Final = "open_limit"

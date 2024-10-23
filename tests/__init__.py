@@ -1,4 +1,4 @@
-"""Tests for the HASS Proxy integration."""
+"""Tests for the HASS Web Proxy integration."""
 
 from types import MappingProxyType
 from typing import Any
@@ -9,13 +9,13 @@ from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
 )
 
-from custom_components.hass_proxy.const import DOMAIN
+from custom_components.hass_web_proxy.const import DOMAIN
 
 TEST_CONFIG_ENTRY_ID = "74565bd414754616000674c87bdc876d"
-TEST_TITLE = "HASS Proxy"
+TEST_TITLE = "Home Assistant Web Proxy"
 
 
-def create_mock_hass_proxy_config_entry(
+def create_mock_hass_web_proxy_config_entry(
     hass: HomeAssistant,
     options: MappingProxyType[str, Any] | None = None,
     entry_id: str | None = TEST_CONFIG_ENTRY_ID,
@@ -33,12 +33,12 @@ def create_mock_hass_proxy_config_entry(
     return config_entry
 
 
-async def setup_mock_hass_proxy_config_entry(
+async def setup_mock_hass_web_proxy_config_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry | None = None,
 ) -> ConfigEntry:
     """Add a mock Frigate config entry to hass."""
-    config_entry = config_entry or create_mock_hass_proxy_config_entry(hass)
+    config_entry = config_entry or create_mock_hass_web_proxy_config_entry(hass)
 
     await hass.config_entries.async_setup(config_entry.entry_id)
     await hass.async_block_till_done()

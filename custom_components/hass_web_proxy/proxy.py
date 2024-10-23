@@ -1,4 +1,4 @@
-"""HASS Proxy proxy."""
+"""HASS Web Proxy proxy."""
 
 from __future__ import annotations
 
@@ -20,15 +20,15 @@ from homeassistant.util.ssl import (
     client_context_no_verify,
 )
 
-from custom_components.hass_proxy.const import DOMAIN
-from custom_components.hass_proxy.data import (
+from custom_components.hass_web_proxy.const import DOMAIN
+from custom_components.hass_web_proxy.data import (
     DynamicProxiedURL,
-    HASSProxyConfigEntry,
-    HASSProxyData,
+    HASSWebProxyConfigEntry,
+    HASSWebProxyData,
 )
-from custom_components.hass_proxy.proxy_lib import (
-    HASSProxyLibExpiredError,
-    HASSProxyLibNotFoundRequestError,
+from custom_components.hass_web_proxy.proxy_lib import (
+    HASSWebProxyLibExpiredError,
+    HASSWebProxyLibNotFoundRequestError,
     ProxiedURL,
     ProxyView,
 )
@@ -57,7 +57,7 @@ if TYPE_CHECKING:
     from aiohttp import web
     from homeassistant.core import HomeAssistant, ServiceCall
 
-    from .const import HASSProxySSLCiphers
+    from .const import HASSWebProxySSLCiphers
 
 CREATE_PROXIED_URL_SCHEMA = vol.Schema(
     {
@@ -85,21 +85,15 @@ DELETE_PROXIED_URL_SCHEMA = vol.Schema(
 )
 
 
-class HASSProxyError(Exception):
-    """Exception to indicate a general Proxy error."""
-
-
-class HASSProxyURLIDNotFoundError(HASSProxyError):
-    """Exception to indicate that a URL ID was not found."""
-
-
 @callback
-async def async_setup_entry(hass: HomeAssistant, entry: HASSProxyConfigEntry) -> None:
-    """Set up the proxy entry."""
+async def async_setup_entry(
+    hass: HomeAssistant, entry: HASSWebProxyConfigEntry
+) -> None:
+    """Set up the HASS web proxy entry."""
     session = async_get_clientsession(hass)
     hass.http.register_view(V0ProxyView(hass, session))
 
-    entry.runtime_data = HASSProxyData(
+    entry.runtime_data = HASSWebProxyData(
         integration=async_get_loaded_integration(hass, entry.domain),
         dynamic_proxied_urls={},
     )
@@ -146,7 +140,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: HASSProxyConfigEntry) ->
 
 
 @callback
-async def async_unload_entry(hass: HomeAssistant, entry: HASSProxyConfigEntry) -> None:
+async def async_unload_entry(
+    hass: HomeAssistant, entry: HASSWebProxyConfigEntry
+) -> None:
     """Unload the proxy entry."""
     if entry.options.get(CONF_DYNAMIC_URLS):
         hass.services.async_remove(DOMAIN, SERVICE_CREATE_PROXIED_URL)
@@ -157,11 +153,11 @@ class HAProxyView(ProxyView):
     """A proxy view for HomeAssistant."""
 
     def __init__(self, hass: HomeAssistant, websession: aiohttp.ClientSession) -> None:
-        """Initialize the HASS Proxy view."""
+        """Initialize the HASS Web Proxy view."""
         self._hass = hass
         super().__init__(websession)
 
-    def _get_config_entry(self) -> HASSProxyConfigEntry:
+    def _get_config_entry(self) -> HASSWebProxyConfigEntry:
         """Get the config entry."""
         return self._hass.config_entries.async_entries(DOMAIN)[0]
 
@@ -176,7 +172,7 @@ class HAProxyView(ProxyView):
     def _get_proxied_url(self, request: web.Request) -> ProxiedURL:
         """Get the URL to proxy."""
         if "url" not in request.query:
-            raise HASSProxyLibNotFoundRequestError
+            raise HASSWebProxyLibNotFoundRequestError
 
         options = self._get_options()
         url_to_proxy = urllib.parse.unquote(request.query["url"])
@@ -218,18 +214,18 @@ class HAProxyView(ProxyView):
                 )
 
         if has_expired_match:
-            raise HASSProxyLibExpiredError
-        raise HASSProxyLibNotFoundRequestError
+            raise HASSWebProxyLibExpiredError
+        raise HASSWebProxyLibNotFoundRequestError
 
     def _get_ssl_context_no_verify(
-        self, ssl_cipher: HASSProxySSLCiphers
+        self, ssl_cipher: HASSWebProxySSLCiphers
     ) -> ssl.SSLContext:
         """Get an SSL context."""
         return client_context_no_verify(
             self._proxy_ssl_cipher_to_ha_ssl_cipher(ssl_cipher)
         )
 
-    def _get_ssl_context(self, ssl_ciphers: HASSProxySSLCiphers) -> ssl.SSLContext:
+    def _get_ssl_context(self, ssl_ciphers: HASSWebProxySSLCiphers) -> ssl.SSLContext:
         """Get an SSL context."""
         return client_context(self._proxy_ssl_cipher_to_ha_ssl_cipher(ssl_ciphers))
 
@@ -243,5 +239,5 @@ class HAProxyView(ProxyView):
 class V0ProxyView(HAProxyView):
     """A v0 proxy endpoint."""
 
-    url = "/api/hass_proxy/v0/"
-    name = "api:hass_proxy:v0"
+    url = "/api/hass_web_proxy/v0/"
+    name = "api:hass_web_proxy:v0"

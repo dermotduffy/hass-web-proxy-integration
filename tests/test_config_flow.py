@@ -1,4 +1,4 @@
-"""Test the HASS Proxy config flow."""
+"""Test the HASS Web Proxy config flow."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from homeassistant import config_entries, data_entry_flow
 
-from custom_components.hass_proxy.const import (
+from custom_components.hass_web_proxy.const import (
     CONF_DYNAMIC_URLS,
     CONF_SSL_CIPHERS,
     CONF_SSL_VERIFICATION,
@@ -16,7 +16,7 @@ from custom_components.hass_proxy.const import (
 )
 
 from . import (
-    create_mock_hass_proxy_config_entry,
+    create_mock_hass_web_proxy_config_entry,
 )
 
 if TYPE_CHECKING:
@@ -30,12 +30,12 @@ async def test_user_success(hass: HomeAssistant) -> None:
     )
 
     assert result["type"] == "create_entry"
-    assert result["title"] == "HASS Proxy"
+    assert result["title"] == "Home Assistant Web Proxy"
 
 
 async def test_user_multiple_forbidden(hass: HomeAssistant) -> None:
     """Test multiple instances are forbidden."""
-    create_mock_hass_proxy_config_entry(hass)
+    create_mock_hass_web_proxy_config_entry(hass)
 
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
@@ -46,10 +46,10 @@ async def test_user_multiple_forbidden(hass: HomeAssistant) -> None:
 
 async def test_options(hass: HomeAssistant) -> None:
     """Test the options flow."""
-    config_entry = create_mock_hass_proxy_config_entry(hass)
+    config_entry = create_mock_hass_web_proxy_config_entry(hass)
 
     with patch(
-        "custom_components.hass_proxy.async_setup_entry",
+        "custom_components.hass_web_proxy.async_setup_entry",
         return_value=True,
     ):
         await hass.async_block_till_done()
