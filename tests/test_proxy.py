@@ -255,7 +255,7 @@ async def test_proxy_view_dynamic_url_open_limit(
     assert resp.status == HTTPStatus.NOT_FOUND
 
 
-@pytest.mark.freeze_time()
+@pytest.mark.freeze_time
 async def test_proxy_view_dynamic_url_ttl(
     hass: HomeAssistant,
     local_server: Any,

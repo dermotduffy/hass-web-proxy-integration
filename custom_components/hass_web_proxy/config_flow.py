@@ -74,7 +74,9 @@ class HASSWebProxyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):  # type
             return self.async_abort(reason="single_instance_allowed")
 
         return self.async_create_entry(
-            title="Home Assistant Web Proxy", data=user_input or {}, options=DEFAULT_OPTIONS
+            title="Home Assistant Web Proxy",
+            data=user_input or {},
+            options=DEFAULT_OPTIONS,
         )
 
 
