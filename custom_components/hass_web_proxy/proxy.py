@@ -9,6 +9,12 @@ from typing import TYPE_CHECKING, Any
 
 import urlmatch
 import voluptuous as vol
+from hass_web_proxy_lib import (
+    HASSWebProxyLibExpiredError,
+    HASSWebProxyLibNotFoundRequestError,
+    ProxiedURL,
+    ProxyView,
+)
 from homeassistant.core import callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
@@ -25,12 +31,6 @@ from custom_components.hass_web_proxy.data import (
     DynamicProxiedURL,
     HASSWebProxyConfigEntry,
     HASSWebProxyData,
-)
-from custom_components.hass_web_proxy.proxy_lib import (
-    HASSWebProxyLibExpiredError,
-    HASSWebProxyLibNotFoundRequestError,
-    ProxiedURL,
-    ProxyView,
 )
 
 from .const import (
