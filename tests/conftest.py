@@ -9,6 +9,7 @@ pytest_plugins = [
     "hass_web_proxy_lib.tests.utils",
 ]
 
+
 @pytest.fixture(autouse=True)
 def hass_web_proxy_integration_fixture(
     socket_enabled: Any,
