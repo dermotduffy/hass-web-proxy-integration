@@ -14,11 +14,6 @@ ignore = [
     "D212", # multi-line-summary-first-line (incompatible with formatter)
     "COM812", # incompatible with formatter
     "ISC001", # incompatible with formatter
-
-    # TODO: Remove these more lenient settings.
-    "TD002",
-    "TD003", 
-    "FIX002",
 ]
 
 [lint.extend-per-file-ignores]
