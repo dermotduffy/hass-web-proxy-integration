@@ -17,46 +17,65 @@ jobs:
     name: "Hassfest Validation"
     runs-on: "ubuntu-latest"
     steps:
-        - name: "Checkout the repository"
-          uses: "actions/checkout@v4.2.1"
+      - name: "Checkout the repository"
+        uses: "actions/checkout@v4.2.1"
 
-        - name: "Run hassfest validation"
-          uses: "home-assistant/actions/hassfest@master"
+      - name: "Run hassfest validation"
+        uses: "home-assistant/actions/hassfest@master"
 
   hacs: # https://github.com/hacs/action
     name: "HACS Validation"
     runs-on: "ubuntu-latest"
     steps:
-        - name: "Checkout the repository"
-          uses: "actions/checkout@v4.2.1"
+      - name: "Checkout the repository"
+        uses: "actions/checkout@v4.2.1"
 
-        - name: "Run HACS validation"
-          uses: "hacs/action@main"
-          with:
-            category: "integration"
-            # Remove this 'ignore' key when you have added brand images for your integration to https://github.com/home-assistant/brands
-            ignore: "brands"
+      - name: "Run HACS validation"
+        uses: "hacs/action@main"
+        with:
+          category: "integration"
+          # Remove this 'ignore' key when you have added brand images for your integration to https://github.com/home-assistant/brands
+          ignore: "brands"
 
   tests:
     runs-on: "ubuntu-latest"
-    name: Run tests
+    name: Tests
     steps:
       - name: Check out code from GitHub
         uses: "actions/checkout@v4.2.1"
       - name: Setup Python ${{ env.DEFAULT_PYTHON }}
-        uses: "actions/setup-python@v5.1.1"
+        uses: "actions/setup-python@v5.2.0"
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
-      - name: Install requirements
-        run: |
-          pip install pip
-          pip install -r requirements_test.txt
+      - name: Set up poetry
+        uses: snok/install-poetry@v1.4.1
+      - name: "Set up dependencies"
+        run: poetry install --no-interaction
       - name: Tests suite
         run: |
-          pytest -p no:sugar
+          poetry run pytest -p no:sugar
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@v4.6.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           env_vars: OS,PYTHON
           verbose: true
+
+  lint:
+    runs-on: "ubuntu-latest"
+    name: Lint
+    steps:
+      - name: Check out code from GitHub
+        uses: "actions/checkout@v4.2.1"
+      - name: Setup Python ${{ env.DEFAULT_PYTHON }}
+        uses: "actions/setup-python@v5.2.0"
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - name: Set up poetry
+        uses: snok/install-poetry@v1.4.1
+      - name: "Set up dependencies"
+        run: poetry install --no-interaction
+      - name: "Lint"
+        run: poetry run ruff check .
+      - name: "Format"
+        run: poetry run ruff format . --check
