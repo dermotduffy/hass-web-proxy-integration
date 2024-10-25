@@ -7,6 +7,7 @@ from unittest.mock import patch
 import aiohttp
 import pytest
 from aiohttp import web
+from hass_web_proxy_lib import ProxiedURL, ProxyView
 from homeassistant.components.http import CONF_TRUSTED_PROXIES, CONF_USE_X_FORWARDED_FOR
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -14,8 +15,6 @@ from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.plugins import (
     enable_custom_integrations,  # noqa: F401  # noqa: F401
 )
-
-from custom_components.hass_web_proxy.proxy_lib import ProxiedURL, ProxyView
 
 TEST_PROXY_URL = "/api/test_proxy"
 TEST_PROXY_NAME = "api:test_proxy"
