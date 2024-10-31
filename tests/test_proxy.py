@@ -49,17 +49,17 @@ TEST_SERVICE_CALL_PARAMS = {
 }
 
 
-async def test_proxy_view_ok(
+async def test_proxy_view_success(
     hass: HomeAssistant,
     local_server: Any,
     hass_client: Any,
 ) -> None:
-    """Test that a valid URL causes OK."""
+    """Test that a valid URL proxies successfully."""
     config_entry = create_mock_hass_web_proxy_config_entry(
         hass,
         {
             **TEST_OPTIONS,
-            CONF_URL_PATTERNS: [f"{local_server}ok"],
+            CONF_URL_PATTERNS: [str(local_server)],
         },
     )
     await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
@@ -67,7 +67,7 @@ async def test_proxy_view_ok(
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
     assert resp.status == HTTPStatus.OK
 
@@ -106,7 +106,7 @@ async def test_proxy_view_no_matching_url(
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
     assert resp.status == HTTPStatus.NOT_FOUND
 
@@ -121,7 +121,7 @@ async def test_proxy_view_ssl_insecure_no_verify(
         hass,
         {
             **TEST_OPTIONS,
-            CONF_URL_PATTERNS: [f"{local_server}ok"],
+            CONF_URL_PATTERNS: [str(local_server)],
             CONF_SSL_CIPHERS: "insecure",
             CONF_SSL_VERIFICATION: False,
         },
@@ -131,7 +131,7 @@ async def test_proxy_view_ssl_insecure_no_verify(
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
     assert resp.status == HTTPStatus.OK
 
@@ -152,14 +152,14 @@ async def test_proxy_view_dynamic_url_ok(
         SERVICE_CREATE_PROXIED_URL,
         {
             **TEST_SERVICE_CALL_PARAMS,
-            CONF_URL_PATTERN: f"{local_server}ok",
+            CONF_URL_PATTERN: str(local_server),
         },
         blocking=True,
     )
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
     assert resp.status == HTTPStatus.OK
 
@@ -181,7 +181,7 @@ async def test_proxy_view_dynamic_url_delete(
         {
             **TEST_SERVICE_CALL_PARAMS,
             CONF_URL_ID: "id",
-            CONF_URL_PATTERN: f"{local_server}ok",
+            CONF_URL_PATTERN: str(local_server),
         },
         blocking=True,
     )
@@ -196,7 +196,7 @@ async def test_proxy_view_dynamic_url_delete(
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
     assert resp.status == HTTPStatus.NOT_FOUND
 
@@ -238,19 +238,19 @@ async def test_proxy_view_dynamic_url_open_limit(
         {
             **TEST_SERVICE_CALL_PARAMS,
             CONF_OPEN_LIMIT: 1,
-            CONF_URL_PATTERN: f"{local_server}ok",
+            CONF_URL_PATTERN: str(local_server),
         },
         blocking=True,
     )
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
     assert resp.status == HTTPStatus.OK
 
     resp = await authenticated_hass_client.get(
-        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
     assert resp.status == HTTPStatus.NOT_FOUND
 
@@ -274,14 +274,14 @@ async def test_proxy_view_dynamic_url_ttl(
         {
             **TEST_SERVICE_CALL_PARAMS,
             CONF_TTL: 10,
-            CONF_URL_PATTERN: f"{local_server}ok",
+            CONF_URL_PATTERN: str(local_server),
         },
         blocking=True,
     )
 
     authenticated_hass_client = await hass_client()
     resp = await authenticated_hass_client.get(
-        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
     assert resp.status == HTTPStatus.OK
 
@@ -289,6 +289,6 @@ async def test_proxy_view_dynamic_url_ttl(
     freezer.move_to(now + datetime.timedelta(seconds=10 + 1))
 
     resp = await authenticated_hass_client.get(
-        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(f"{local_server}ok")}"
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
     assert resp.status == HTTPStatus.GONE

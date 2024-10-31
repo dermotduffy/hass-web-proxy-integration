@@ -1570,13 +1570,13 @@ test = ["codespell (==2.3.0)", "mypy (==1.10.0)", "pre-commit (==3.7.1)", "pre-c
 
 [[package]]
 name = "hass-web-proxy-lib"
-version = "0.0.3"
+version = "0.0.4"
 description = "A library to proxy web traffic through Home Assistant integrations."
 optional = false
 python-versions = "<3.14,>=3.12"
 files = [
-    {file = "hass_web_proxy_lib-0.0.3-py3-none-any.whl", hash = "sha256:3d7c873fffa6a5e62f48cee305fcc173044dab8264bda307ec73161340d0b133"},
-    {file = "hass_web_proxy_lib-0.0.3.tar.gz", hash = "sha256:a89d937a01aeaf4b8de8aae0790d6ec3611cfd221353319c45e10dc708abee36"},
+    {file = "hass_web_proxy_lib-0.0.4-py3-none-any.whl", hash = "sha256:82c8ed5f1a2402f5b83eb4d32e72bb9e1905d9d2d3f4178885651933b8320534"},
+    {file = "hass_web_proxy_lib-0.0.4.tar.gz", hash = "sha256:34a9024707b9bd297521956284de05c2eccab8101a6f692eec61c262249cc3ec"},
 ]
 
 [package.dependencies]
