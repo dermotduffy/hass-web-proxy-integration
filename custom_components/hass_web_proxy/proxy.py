@@ -34,6 +34,7 @@ from custom_components.hass_web_proxy.data import (
 )
 
 from .const import (
+    CONF_ALLOW_UNAUTHENTICATED,
     CONF_DYNAMIC_URLS,
     CONF_OPEN_LIMIT,
     CONF_SSL_CIPHERS,
@@ -73,6 +74,7 @@ CREATE_PROXIED_URL_SCHEMA = vol.Schema(
         ),
         vol.Optional(CONF_OPEN_LIMIT, default=1): cv.positive_int,
         vol.Optional(CONF_TTL, default=60): cv.positive_int,
+        vol.Optional(CONF_ALLOW_UNAUTHENTICATED, default=False): cv.boolean,
     },
     required=True,
 )
@@ -109,6 +111,7 @@ async def async_setup_entry(
             ssl_ciphers=call.data["ssl_ciphers"],
             open_limit=call.data["open_limit"],
             expiration=time.time() + ttl if ttl else 0,
+            allow_unauthenticated=call.data["allow_unauthenticated"],
         )
 
     def delete_proxied_url(call: ServiceCall) -> None:
@@ -196,6 +199,7 @@ class HAProxyView(ProxyView):
 
                 return ProxiedURL(
                     url=url_to_proxy,
+                    allow_unauthenticated=proxied_url.allow_unauthenticated,
                     ssl_context=self._get_ssl_context(proxied_url.ssl_ciphers)
                     if proxied_url.ssl_verification
                     else self._get_ssl_context_no_verify(proxied_url.ssl_ciphers),

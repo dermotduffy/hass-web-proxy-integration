@@ -56,7 +56,10 @@ create_proxied_url:
           min: 0
           max: 100000
           unit_of_measurement: seconds
-
+    allow_unauthenticated:
+      name: Allow Unauthenticated
+      description: Whether or not to allow unauthenticated traffic to be proxied.
+      required: false
 delete_proxied_url:
   name: Delete a proxied URL
   description: >

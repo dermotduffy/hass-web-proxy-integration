@@ -19,6 +19,7 @@ class DynamicProxiedURL:
     ssl_ciphers: str
     open_limit: int
     expiration: int
+    allow_unauthenticated: bool
 
 
 type HASSWebProxyConfigEntry = ConfigEntry[HASSWebProxyData]

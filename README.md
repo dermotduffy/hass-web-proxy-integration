@@ -27,7 +27,8 @@ Install the integration to your Home Assistant instance:
 
 ## Basic Usage
 
-The integration does not proxy anything by default. There are two methods to actually proxy:
+The integration does not proxy anything by default. There are two methods to actually
+proxy:
 
 ### Set up static URL Proxying
 
@@ -38,17 +39,23 @@ Visit the options configuration for the integration:
 - Navigate `Settings -> Devices & Services`
 - Click through `Home Assistant Web Proxy` in the list of installed integrations
 - Click `CONFIGURE`
-- Click `+ ADD` to add a URL pattern that should be allowed proxy through the integration (e.g. `https://cam-*.mydomain.io` to allow proxying any hostname that starts with `cam-` in the `mydomain.io` domain)
+- Click `+ ADD` to add a URL pattern that should be allowed proxy through the integration
+  (e.g. `https://cam-*.mydomain.io` to allow proxying any hostname that starts with
+  `cam-` in the `mydomain.io` domain)
 - Click `SUBMIT`
 
 Result:
 
-- If the example target to proxy is `http://cam-back-yard.mydomain.io`, first URL encode it to `http%3A%2F%2Fcam-back-yard.mydomain.io`
-- Visiting `https://$HA_INSTANCE/api/hass_web_proxy/v0/?url=http%3A%2F%2Fcam-back-yard.mydomain.io` will proxy through Home Assistant for authenticated Home Assistant users.
+- If the example target to proxy is `http://cam-back-yard.mydomain.io`, first URL encode
+  it to `http%3A%2F%2Fcam-back-yard.mydomain.io`
+- Visiting
+  `https://$HA_INSTANCE/api/hass_web_proxy/v0/?url=http%3A%2F%2Fcam-back-yard.mydomain.io`
+  will proxy through Home Assistant for authenticated Home Assistant users.
 
 ### Create a dynamic URL proxy
 
-With this method, the user, Home Assistant automation or Lovelace cards, can dynamically request a URL be proxied:
+With this method, the user, Home Assistant automation or Lovelace cards, can dynamically
+request a URL be proxied:
 
 - Call the `hass_web_proxy.create_proxied_url` action:
 
@@ -61,8 +68,11 @@ data:
 
 Result:
 
-- If the example target to proxy is `http://cam-back-yard.mydomain.io`, first URL encode it to `http%3A%2F%2Fcam-back-yard.mydomain.io`
-- Visiting `https://$HA_INSTANCE/api/hass_web_proxy/v0/?url=http%3A%2F%2Fcam-back-yard.mydomain.io` will proxy through Home Assistant for authenticated Home Assistant users.
+- If the example target to proxy is `http://cam-back-yard.mydomain.io`, first URL encode
+  it to `http%3A%2F%2Fcam-back-yard.mydomain.io`
+- Visiting
+  `https://$HA_INSTANCE/api/hass_web_proxy/v0/?url=http%3A%2F%2Fcam-back-yard.mydomain.io`
+  will proxy through Home Assistant for authenticated Home Assistant users.
 
 To delete the proxied URL:
 
@@ -94,14 +104,15 @@ action: hass_web_proxy.create_proxied_url
 data: [...]
 ```
 
-| Name               | Default   | Description                                                                                                                                 |
-| ------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `open_limit`       |           | An optional number of times a URL pattern may be proxied to before it is automatically removed as a proxied URL.                            |
-| `ssl_verification` | `true`    | Whether SSL certifications/hostnames should be verified on the proxy URL targets.                                                           |
-| `ssl_ciphers`      | `default` | Whether to use `default`, `modern`, `intermediate`, or `insecure` ciphers. Older devices may not support default or modern ciphers.         |
-| `ttl`              |           | An optional number of seconds to allow proxying of this URL pattern.                                                                        |
-| `url_pattern`      |           | An required [URL pattern](https://github.com/jessepollak/urlmatch) to allow proxying for, e.g. `http://cam-*.mydomain.io`.                  |
-| `url_id`           |           | An optional ID that can be used to refer to that proxied URL later (e.g. to delete it with the `hass_web_proxy.delete_proxied_url` action). |
+| Name                    | Default   | Description                                                                                                                                                                |
+| ----------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `open_limit`            |           | An optional number of times a URL pattern may be proxied to before it is automatically removed as a proxied URL.                                                           |
+| `ssl_verification`      | `true`    | Whether SSL certifications/hostnames should be verified on the proxy URL targets.                                                                                          |
+| `ssl_ciphers`           | `default` | Whether to use `default`, `modern`, `intermediate`, or `insecure` ciphers. Older devices may not support default or modern ciphers.                                        |
+| `ttl`                   |           | An optional number of seconds to allow proxying of this URL pattern.                                                                                                       |
+| `url_pattern`           |           | An required [URL pattern](https://github.com/jessepollak/urlmatch) to allow proxying for, e.g. `http://cam-*.mydomain.io`.                                                 |
+| `url_id`                |           | An optional ID that can be used to refer to that proxied URL later (e.g. to delete it with the `hass_web_proxy.delete_proxied_url` action).                                |
+| `allow_unauthenticated` | `false`   | If `false`, or unset, unauthenticated HA users will not be allowed to access the proxied URL. If `true`, they will. See [Security Considerations](#user-content-security). |
 
 #### `hass_web_proxy.delete_proxied_url`
 
@@ -118,16 +129,22 @@ data: [...]
 
 ### Security
 
-No URLs are proxied by default. However, any user, automation or Javascript with
-access to the Home Assistant instance could call
-`hass_web_proxy.create_proxied_url` to create a dynamically proxied URL, thus
-exposing arbitrary resources "behind" Home Assistant to anything/anyone that can
-access Home Assistant itself. Depending on the setup, this may present an access
-escalation beyond what would usually be accessible.
+No URLs are proxied by default.
+
+However, any user, automation or Javascript with access to the Home Assistant
+instance could call `hass_web_proxy.create_proxied_url` to create a dynamically
+proxied URL, thus exposing arbitrary resources "behind" Home Assistant to
+**anything/anyone that can access Home Assistant itself. Depending on the setup,
+this may present an access escalation beyond what would usually be accessible.
+In particular, wide exposure could occur if the user, automation or Javascript
+set `allow_unauthenticated` in the dynamically proxied URL request, which would
+allow arbitrary internet traffic to be proxied via the Home Assistant instance
+regardless of whether or not they have valid user credentials on the HA
+instance.
 
 ### Performance
 
-All proxying is done by the integration which runs as part of the Home Assistant
-process. As such, this proxy is not expected to be particularly performant and
-excessive usage could slow Home Assistant itself down. This is unlikely to be
-noticeable in practice for casual usage.
+All proxying is done by the integration which runs as part of the Home Assistant process.
+As such, this proxy is not expected to be particularly performant and excessive usage
+could slow Home Assistant itself down. This is unlikely to be noticeable in practice for
+casual usage.
