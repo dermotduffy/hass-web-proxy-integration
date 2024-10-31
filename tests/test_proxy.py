@@ -11,6 +11,7 @@ import pytest
 from homeassistant.exceptions import ServiceValidationError
 
 from custom_components.hass_web_proxy.const import (
+    CONF_ALLOW_UNAUTHENTICATED,
     CONF_DYNAMIC_URLS,
     CONF_OPEN_LIMIT,
     CONF_SSL_CIPHERS,
@@ -136,12 +137,12 @@ async def test_proxy_view_ssl_insecure_no_verify(
     assert resp.status == HTTPStatus.OK
 
 
-async def test_proxy_view_dynamic_url_ok(
+async def test_proxy_view_dynamic_url_success(
     hass: HomeAssistant,
     local_server: Any,
     hass_client: Any,
 ) -> None:
-    """Test that a valid dynamic URL causes OK."""
+    """Test that a valid dynamic URL proxies successfully."""
     config_entry = create_mock_hass_web_proxy_config_entry(hass, TEST_OPTIONS)
 
     await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
@@ -292,3 +293,60 @@ async def test_proxy_view_dynamic_url_ttl(
         f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
     assert resp.status == HTTPStatus.GONE
+
+
+async def test_proxy_view_dynamic_url_unauthenticated_forbidden(
+    hass: HomeAssistant,
+    local_server: Any,
+    hass_client_no_auth: Any,
+) -> None:
+    """Test that a valid dynamic URL is rejected for unauthorized users."""
+    config_entry = create_mock_hass_web_proxy_config_entry(hass, TEST_OPTIONS)
+
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
+    await async_proxy_setup_entry(hass, config_entry)
+
+    await hass.services.async_call(
+        DOMAIN,
+        SERVICE_CREATE_PROXIED_URL,
+        {
+            **TEST_SERVICE_CALL_PARAMS,
+            CONF_URL_PATTERN: str(local_server),
+        },
+        blocking=True,
+    )
+
+    unauthenticated_hass_client = await hass_client_no_auth()
+    resp = await unauthenticated_hass_client.get(
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
+    )
+    assert resp.status == HTTPStatus.UNAUTHORIZED
+
+
+async def test_proxy_view_dynamic_url_unauthenticated_permitted(
+    hass: HomeAssistant,
+    local_server: Any,
+    hass_client_no_auth: Any,
+) -> None:
+    """Test that a valid dynamic URL is permitted for unauthorized users."""
+    config_entry = create_mock_hass_web_proxy_config_entry(hass, TEST_OPTIONS)
+
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
+    await async_proxy_setup_entry(hass, config_entry)
+
+    await hass.services.async_call(
+        DOMAIN,
+        SERVICE_CREATE_PROXIED_URL,
+        {
+            **TEST_SERVICE_CALL_PARAMS,
+            CONF_URL_PATTERN: str(local_server),
+            CONF_ALLOW_UNAUTHENTICATED: True,
+        },
+        blocking=True,
+    )
+
+    unauthenticated_hass_client = await hass_client_no_auth()
+    resp = await unauthenticated_hass_client.get(
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
+    )
+    assert resp.status == HTTPStatus.OK

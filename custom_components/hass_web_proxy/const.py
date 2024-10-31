@@ -17,6 +17,7 @@ CONF_SSL_CIPHERS_DEFAULT: Final = "default"
 
 type HASSWebProxySSLCiphers = Literal["insecure", "modern", "intermediate", "default"]
 
+CONF_ALLOW_UNAUTHENTICATED = "allow_unauthenticated"
 CONF_DYNAMIC_URLS: Final = "dynamic_urls"
 CONF_OPEN_LIMIT: Final = "open_limit"
 CONF_TTL: Final = "ttl"
