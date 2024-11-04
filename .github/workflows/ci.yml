@@ -66,9 +66,9 @@ jobs:
     name: Lint
     steps:
       - name: Check out code from GitHub
-        uses: "actions/checkout@v4.2.1"
+        uses: "actions/checkout@v4.2.2"
       - name: Setup Python ${{ env.DEFAULT_PYTHON }}
-        uses: "actions/setup-python@v5.2.0"
+        uses: "actions/setup-python@v5.3.0"
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
       - name: Set up poetry
@@ -79,3 +79,21 @@ jobs:
         run: poetry run ruff check .
       - name: "Format"
         run: poetry run ruff format . --check
+
+
+  mypy:
+    runs-on: "ubuntu-latest"
+    name: Typing
+    steps:
+      - name: Check out code from GitHub
+        uses: "actions/checkout@v4.2.2"
+      - name: Setup Python ${{ env.DEFAULT_PYTHON }}
+        uses: "actions/setup-python@v5.3.0"
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON }}
+      - name: Set up poetry
+        uses: snok/install-poetry@v1.4.1
+      - name: "Set up dependencies"
+        run: poetry install --no-interaction
+      - name: "mypy"
+        run: poetry run mypy -p custom_components.hass_web_proxy

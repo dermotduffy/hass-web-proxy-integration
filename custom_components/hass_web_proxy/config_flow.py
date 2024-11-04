@@ -54,11 +54,11 @@ OPTIONS_SCHEMA = vol.Schema(
 )
 
 
-class HASSWebProxyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg,misc]
+class HASSWebProxyFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for HASS Web Proxy."""
 
     @staticmethod
-    @callback  # type: ignore[misc]
+    @callback
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
     ) -> HASSWebProxyOptionsFlowHandler:

@@ -26,13 +26,6 @@ from homeassistant.util.ssl import (
     client_context_no_verify,
 )
 
-from custom_components.hass_web_proxy.const import DOMAIN
-from custom_components.hass_web_proxy.data import (
-    DynamicProxiedURL,
-    HASSWebProxyConfigEntry,
-    HASSWebProxyData,
-)
-
 from .const import (
     CONF_ALLOW_UNAUTHENTICATED,
     CONF_DYNAMIC_URLS,
@@ -46,8 +39,14 @@ from .const import (
     CONF_TTL,
     CONF_URL_ID,
     CONF_URL_PATTERN,
+    DOMAIN,
     SERVICE_CREATE_PROXIED_URL,
     SERVICE_DELETE_PROXIED_URL,
+)
+from .data import (
+    DynamicProxiedURL,
+    HASSWebProxyConfigEntry,
+    HASSWebProxyData,
 )
 
 if TYPE_CHECKING:
@@ -58,7 +57,6 @@ if TYPE_CHECKING:
     from aiohttp import web
     from homeassistant.core import HomeAssistant, ServiceCall
 
-    from .const import HASSWebProxySSLCiphers
 
 CREATE_PROXIED_URL_SCHEMA = vol.Schema(
     {
@@ -172,7 +170,7 @@ class HAProxyView(ProxyView):
         """Get a ConfigEntry options for a given request."""
         return self._get_config_entry().options
 
-    def _get_proxied_url(self, request: web.Request) -> ProxiedURL:
+    def _get_proxied_url(self, request: web.Request, **_kwargs: Any) -> ProxiedURL:
         """Get the URL to proxy."""
         if "url" not in request.query:
             raise HASSWebProxyLibNotFoundRequestError
@@ -207,7 +205,7 @@ class HAProxyView(ProxyView):
 
         for url_pattern in self._get_options().get("url_patterns", []):
             if urlmatch.urlmatch(url_pattern, url_to_proxy, path_required=False):
-                ssl_cipher = options.get(CONF_SSL_CIPHERS)
+                ssl_cipher = str(options.get(CONF_SSL_CIPHERS))
                 ssl_verification = options.get(CONF_SSL_VERIFICATION, True)
 
                 return ProxiedURL(
@@ -221,23 +219,25 @@ class HAProxyView(ProxyView):
             raise HASSWebProxyLibExpiredError
         raise HASSWebProxyLibNotFoundRequestError
 
-    def _get_ssl_context_no_verify(
-        self, ssl_cipher: HASSWebProxySSLCiphers
-    ) -> ssl.SSLContext:
+    def _get_ssl_context_no_verify(self, ssl_cipher: str) -> ssl.SSLContext:
         """Get an SSL context."""
         return client_context_no_verify(
             self._proxy_ssl_cipher_to_ha_ssl_cipher(ssl_cipher)
         )
 
-    def _get_ssl_context(self, ssl_ciphers: HASSWebProxySSLCiphers) -> ssl.SSLContext:
+    def _get_ssl_context(self, ssl_ciphers: str) -> ssl.SSLContext:
         """Get an SSL context."""
         return client_context(self._proxy_ssl_cipher_to_ha_ssl_cipher(ssl_ciphers))
 
     def _proxy_ssl_cipher_to_ha_ssl_cipher(self, ssl_ciphers: str) -> SSLCipherList:
         """Convert a proxy SSL cipher to a HA SSL cipher."""
-        if ssl_ciphers == CONF_SSL_CIPHERS_DEFAULT:
-            return SSLCipherList.PYTHON_DEFAULT
-        return ssl_ciphers
+        if ssl_ciphers == CONF_SSL_CIPHERS_INSECURE:
+            return SSLCipherList.INSECURE
+        if ssl_ciphers == CONF_SSL_CIPHERS_MODERN:
+            return SSLCipherList.MODERN
+        if ssl_ciphers == CONF_SSL_CIPHERS_INTERMEDIATE:
+            return SSLCipherList.INTERMEDIATE
+        return SSLCipherList.PYTHON_DEFAULT
 
 
 class V0ProxyView(HAProxyView):
