@@ -15,6 +15,10 @@ from custom_components.hass_web_proxy.const import (
     CONF_DYNAMIC_URLS,
     CONF_OPEN_LIMIT,
     CONF_SSL_CIPHERS,
+    CONF_SSL_CIPHERS_DEFAULT,
+    CONF_SSL_CIPHERS_INSECURE,
+    CONF_SSL_CIPHERS_INTERMEDIATE,
+    CONF_SSL_CIPHERS_MODERN,
     CONF_SSL_VERIFICATION,
     CONF_TTL,
     CONF_URL_ID,
@@ -112,10 +116,20 @@ async def test_proxy_view_no_matching_url(
     assert resp.status == HTTPStatus.NOT_FOUND
 
 
-async def test_proxy_view_ssl_insecure_no_verify(
+@pytest.mark.parametrize(
+    "ssl_cipher",
+    [
+        CONF_SSL_CIPHERS_DEFAULT,
+        CONF_SSL_CIPHERS_INSECURE,
+        CONF_SSL_CIPHERS_INTERMEDIATE,
+        CONF_SSL_CIPHERS_MODERN,
+    ],
+)
+async def test_proxy_view_ssl_cipher_no_verify(
     hass: HomeAssistant,
     local_server: Any,
     hass_client: Any,
+    ssl_cipher: str,
 ) -> None:
     """Verify proxying with insecure SSL settings."""
     config_entry = create_mock_hass_web_proxy_config_entry(
@@ -123,7 +137,7 @@ async def test_proxy_view_ssl_insecure_no_verify(
         {
             **TEST_OPTIONS,
             CONF_URL_PATTERNS: [str(local_server)],
-            CONF_SSL_CIPHERS: "insecure",
+            CONF_SSL_CIPHERS: ssl_cipher,
             CONF_SSL_VERIFICATION: False,
         },
     )
