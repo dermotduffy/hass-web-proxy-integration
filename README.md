@@ -1,7 +1,22 @@
 # `hass-web-proxy-integration`
 
-A small [Home Assistant](https://www.home-assistant.io/) integration to proxy
-authenticated web traffic through Home Assistant.
+A small [Home Assistant](https://www.home-assistant.io/) integration to
+optionally proxy select web traffic through a Home Assistant instance.
+
+## Why?
+
+Typical usecases are Lovelace cards (e.g. [Frigate
+Card](https://github.com/dermotduffy/frigate-hass-card)) that cannot directly
+access resources required (either because the browser may not be on the same
+network as the backend resources, or because the browser may not allow [Mixed
+Content](https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content)).
+
+## How can this integration help?
+
+There are two main styles of proxying:
+
+- Statically proxying a set of URL patterns (e.g. Accessing `https://$HA_INSTANCE/api/hass_web_proxy/v0/?url=http%3A%2F%2Fcam-back-yard.mydomain.io` will result in a request to `http://cam-back-yard.mydomain.io`).
+- Accept Home Assistant `action` calls to selectively allow proxying, for use in automations or `hass-web-proxy-integration` aware Lovelace cards that dynamically select what to proxy.
 
 ## Installation
 
@@ -104,15 +119,15 @@ action: hass_web_proxy.create_proxied_url
 data: [...]
 ```
 
-| Name                    | Default   | Description                                                                                                                                                                |
-| ----------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `open_limit`            |           | An optional number of times a URL pattern may be proxied to before it is automatically removed as a proxied URL.                                                           |
-| `ssl_verification`      | `true`    | Whether SSL certifications/hostnames should be verified on the proxy URL targets.                                                                                          |
-| `ssl_ciphers`           | `default` | Whether to use `default`, `modern`, `intermediate`, or `insecure` ciphers. Older devices may not support default or modern ciphers.                                        |
-| `ttl`                   |           | An optional number of seconds to allow proxying of this URL pattern.                                                                                                       |
-| `url_pattern`           |           | An required [URL pattern](https://github.com/jessepollak/urlmatch) to allow proxying for, e.g. `http://cam-*.mydomain.io`.                                                 |
-| `url_id`                |           | An optional ID that can be used to refer to that proxied URL later (e.g. to delete it with the `hass_web_proxy.delete_proxied_url` action).                                |
-| `allow_unauthenticated` | `false`   | If `false`, or unset, unauthenticated HA users will not be allowed to access the proxied URL. If `true`, they will. See [Security Considerations](#user-content-security). |
+| Name                    | Default   | Description                                                                                                                                              |
+| ----------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `open_limit`            |           | An optional number of times a URL pattern may be proxied to before it is automatically removed as a proxied URL.                                         |
+| `ssl_verification`      | `true`    | Whether SSL certifications/hostnames should be verified on the proxy URL targets.                                                                        |
+| `ssl_ciphers`           | `default` | Whether to use `default`, `modern`, `intermediate`, or `insecure` ciphers. Older devices may not support default or modern ciphers.                      |
+| `ttl`                   |           | An optional number of seconds to allow proxying of this URL pattern.                                                                                     |
+| `url_pattern`           |           | An required [URL pattern](https://github.com/jessepollak/urlmatch) to allow proxying for, e.g. `http://cam-*.mydomain.io`.                               |
+| `url_id`                |           | An optional ID that can be used to refer to that proxied URL later (e.g. to delete it with the `hass_web_proxy.delete_proxied_url` action).              |
+| `allow_unauthenticated` | `false`   | If `false`, or unset, unauthenticated HA users will not be allowed to access the proxied URL. If `true`, they will. See below. |
 
 #### `hass_web_proxy.delete_proxied_url`
 
@@ -131,20 +146,20 @@ data: [...]
 
 No URLs are proxied by default.
 
-However, any user, automation or Javascript with access to the Home Assistant
-instance could call `hass_web_proxy.create_proxied_url` to create a dynamically
-proxied URL, thus exposing arbitrary resources "behind" Home Assistant to
-**anything/anyone that can access Home Assistant itself. Depending on the setup,
-this may present an access escalation beyond what would usually be accessible.
-In particular, wide exposure could occur if the user, automation or Javascript
-set `allow_unauthenticated` in the dynamically proxied URL request, which would
-allow arbitrary internet traffic to be proxied via the Home Assistant instance
-regardless of whether or not they have valid user credentials on the HA
-instance.
+However, any user, automation or Javascript with authenticated access to the
+Home Assistant instance could call `hass_web_proxy.create_proxied_url` to create
+a dynamically proxied URL, thus exposing arbitrary resources "behind" Home
+Assistant to anything/anyone that can access Home Assistant itself.
+Depending on the setup, this may present an access escalation beyond what would
+usually be accessible. In particular, wide exposure could occur if the user,
+automation or Javascript set `allow_unauthenticated` in the dynamically proxied
+URL request, which would allow arbitrary internet traffic to be proxied via the
+Home Assistant instance regardless of whether or not they have valid user
+credentials on the HA instance.
 
 ### Performance
 
-All proxying is done by the integration which runs as part of the Home Assistant process.
-As such, this proxy is not expected to be particularly performant and excessive usage
-could slow Home Assistant itself down. This is unlikely to be noticeable in practice for
-casual usage.
+All proxying is done by the integration which runs as part of the Home Assistant
+process itself. As such, this proxy is not expected to be particularly
+performant and excessive usage could slow Home Assistant itself down. This is
+unlikely to be noticeable in practice for casual usage.
