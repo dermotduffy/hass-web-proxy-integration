@@ -1,0 +1,25 @@
+---
+categories:
+  - title: ':boom: Breaking Changes'
+    label: 'breaking'
+  - title: ':rocket: Features'
+    label: 'feature'
+  - title: ':bug: Fixes'
+    label: 'bug'
+  - title: ':racehorse: Performance'
+    label: 'performance'
+  - title: ':rotating_light: Testing'
+    label: 'testing'
+  - title: ':construction_worker: Continuous Integration'
+    label: 'ci'
+  - title: ':books: Documentation'
+    label: 'documentation'
+  - title: ':hammer: Refactoring'
+    label: 'refactoring'
+  - title: ':wrench: Chore'
+    label: 'chore'
+
+template: |
+  ## Changes
+
+  $CHANGES
