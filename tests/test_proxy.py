@@ -306,7 +306,7 @@ async def test_proxy_view_dynamic_url_ttl(
     resp = await authenticated_hass_client.get(
         f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
-    assert resp.status == HTTPStatus.GONE
+    assert resp.status == HTTPStatus.NOT_FOUND
 
 
 async def test_proxy_view_dynamic_url_unauthenticated_forbidden(

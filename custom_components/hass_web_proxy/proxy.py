@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any
 import urlmatch
 import voluptuous as vol
 from hass_web_proxy_lib import (
-    HASSWebProxyLibExpiredError,
     HASSWebProxyLibNotFoundRequestError,
     ProxiedURL,
     ProxyView,
@@ -170,6 +169,13 @@ class HAProxyView(ProxyView):
         """Get a ConfigEntry options for a given request."""
         return self._get_config_entry().options
 
+    def _cleanup_expired_urls(self) -> None:
+        """Cleanup expired URLs."""
+        proxied_urls = self.get_dynamic_proxied_urls()
+        for url_id, proxied_url in list(proxied_urls.items()):
+            if proxied_url.expiration and proxied_url.expiration < time.time():
+                del proxied_urls[url_id]
+
     def _get_proxied_url(self, request: web.Request, **_kwargs: Any) -> ProxiedURL:
         """Get the URL to proxy."""
         if "url" not in request.query:
@@ -177,7 +183,8 @@ class HAProxyView(ProxyView):
 
         options = self._get_options()
         url_to_proxy = urllib.parse.unquote(request.query["url"])
-        has_expired_match = False
+
+        self._cleanup_expired_urls()
 
         proxied_urls = self.get_dynamic_proxied_urls()
         for [url_id, proxied_url] in proxied_urls.items():
@@ -186,10 +193,6 @@ class HAProxyView(ProxyView):
                 url_to_proxy,
                 path_required=False,
             ):
-                if proxied_url.expiration and proxied_url.expiration < time.time():
-                    has_expired_match = True
-                    continue
-
                 if proxied_url.open_limit:
                     proxied_url.open_limit -= 1
                     if proxied_url.open_limit == 0:
@@ -215,8 +218,6 @@ class HAProxyView(ProxyView):
                     else self._get_ssl_context_no_verify(ssl_cipher),
                 )
 
-        if has_expired_match:
-            raise HASSWebProxyLibExpiredError
         raise HASSWebProxyLibNotFoundRequestError
 
     def _get_ssl_context_no_verify(self, ssl_cipher: str) -> ssl.SSLContext:
