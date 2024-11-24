@@ -88,6 +88,8 @@ Result:
 - Visiting
   `https://$HA_INSTANCE/api/hass_web_proxy/v0/?url=http%3A%2F%2Fcam-back-yard.mydomain.io`
   will proxy through Home Assistant for authenticated Home Assistant users.
+- The service call will return a dictionary with a `url_id` parameter referring
+  to the created proxied URL.
 
 To delete the proxied URL:
 
@@ -119,15 +121,15 @@ action: hass_web_proxy.create_proxied_url
 data: [...]
 ```
 
-| Name                    | Default   | Description                                                                                                                                              |
-| ----------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `open_limit`            |           | An optional number of times a URL pattern may be proxied to before it is automatically removed as a proxied URL.                                         |
-| `ssl_verification`      | `true`    | Whether SSL certifications/hostnames should be verified on the proxy URL targets.                                                                        |
-| `ssl_ciphers`           | `default` | Whether to use `default`, `modern`, `intermediate`, or `insecure` ciphers. Older devices may not support default or modern ciphers.                      |
-| `ttl`                   |           | An optional number of seconds to allow proxying of this URL pattern.                                                                                     |
-| `url_pattern`           |           | An required [URL pattern](https://github.com/jessepollak/urlmatch) to allow proxying for, e.g. `http://cam-*.mydomain.io`.                               |
-| `url_id`                |           | An optional ID that can be used to refer to that proxied URL later (e.g. to delete it with the `hass_web_proxy.delete_proxied_url` action).              |
-| `allow_unauthenticated` | `false`   | If `false`, or unset, unauthenticated HA users will not be allowed to access the proxied URL. If `true`, they will. See below. |
+| Name                    | Default   | Description                                                                                                                                                                                                  |
+| ----------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `open_limit`            |           | An optional number of times a URL pattern may be proxied to before it is automatically removed as a proxied URL.                                                                                             |
+| `ssl_verification`      | `true`    | Whether SSL certifications/hostnames should be verified on the proxy URL targets.                                                                                                                            |
+| `ssl_ciphers`           | `default` | Whether to use `default`, `modern`, `intermediate`, or `insecure` ciphers. Older devices may not support default or modern ciphers.                                                                          |
+| `ttl`                   |           | An optional number of seconds to allow proxying of this URL pattern.                                                                                                                                         |
+| `url_pattern`           |           | An required [URL pattern](https://github.com/jessepollak/urlmatch) to allow proxying for, e.g. `http://cam-*.mydomain.io`.                                                                                   |
+| `url_id`                | [UUID]    | An optional ID that can be used to refer to that proxied URL later (e.g. to delete it with the `hass_web_proxy.delete_proxied_url` action). A UUID is automatically used if this parameter is not specified. |
+| `allow_unauthenticated` | `false`   | If `false`, or unset, unauthenticated HA users will not be allowed to access the proxied URL. If `true`, they will. See below.                                                                               |
 
 #### `hass_web_proxy.delete_proxied_url`
 
