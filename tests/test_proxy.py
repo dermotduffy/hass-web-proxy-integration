@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import datetime
 import urllib
+import uuid
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Any
 
@@ -177,6 +178,34 @@ async def test_proxy_view_dynamic_url_success(
         f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
     assert resp.status == HTTPStatus.OK
+
+
+async def test_proxy_view_dynamic_url_return_value(
+    hass: HomeAssistant,
+    local_server: Any,
+    hass_client: Any,
+) -> None:
+    """Test that a service call to create a URL returns the id."""
+    config_entry = create_mock_hass_web_proxy_config_entry(hass, TEST_OPTIONS)
+
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
+    await async_proxy_setup_entry(hass, config_entry)
+
+    service_response = await hass.services.async_call(
+        DOMAIN,
+        SERVICE_CREATE_PROXIED_URL,
+        {
+            **TEST_SERVICE_CALL_PARAMS,
+            CONF_URL_PATTERN: str(local_server),
+        },
+        blocking=True,
+        return_response=True,
+    )
+
+    assert isinstance(service_response.get("url_id"), str)
+
+    # Ensure the response is a valid UUID (will raise if not).
+    uuid.UUID(service_response["url_id"], version=4)
 
 
 async def test_proxy_view_dynamic_url_delete(
