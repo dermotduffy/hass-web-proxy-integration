@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 import urlmatch
 import voluptuous as vol
 from hass_web_proxy_lib import (
+    LOGGER,
     HASSWebProxyLibNotFoundRequestError,
     ProxiedURL,
     ProxyView,
@@ -110,6 +111,9 @@ async def async_setup_entry(
             expiration=time.time() + ttl if ttl else 0,
             allow_unauthenticated=call.data["allow_unauthenticated"],
         )
+
+        LOGGER.debug(f"Created dynamically proxied URL '{url_id}': {call.data}")
+
         return {"url_id": url_id}
 
     def delete_proxied_url(call: ServiceCall) -> None:
@@ -124,6 +128,8 @@ async def async_setup_entry(
                 translation_placeholders={"url_id": url_id},
             )
         del entry.runtime_data.dynamic_proxied_urls[url_id]
+
+        LOGGER.debug(f"Deleted dynamically proxied URL '{url_id}'")
 
     if entry.options.get(CONF_DYNAMIC_URLS):
         hass.services.async_register(
@@ -180,6 +186,12 @@ class HAProxyView(ProxyView):
 
     def _get_proxied_url(self, request: web.Request, **_kwargs: Any) -> ProxiedURL:
         """Get the URL to proxy."""
+        LOGGER.debug(
+            f"Received proxy request '{request.query}',"
+            f" dynamic proxied URLs: {self.get_dynamic_proxied_urls()},"
+            f" static options: {self._get_options()}."
+        )
+
         if "url" not in request.query:
             raise HASSWebProxyLibNotFoundRequestError
 
