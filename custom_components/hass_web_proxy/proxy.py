@@ -14,7 +14,7 @@ from hass_web_proxy_lib import (
     ProxiedURL,
     ProxyView,
 )
-from homeassistant.core import callback
+from homeassistant.core import ServiceResponse, SupportsResponse, callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -97,7 +97,7 @@ async def async_setup_entry(
         dynamic_proxied_urls={},
     )
 
-    def create_proxied_url(call: ServiceCall) -> None:
+    def create_proxied_url(call: ServiceCall) -> ServiceResponse:
         """Create a proxied URL."""
         url_id = call.data.get("url_id") or str(uuid.uuid4())
         ttl = call.data["ttl"]
@@ -110,6 +110,7 @@ async def async_setup_entry(
             expiration=time.time() + ttl if ttl else 0,
             allow_unauthenticated=call.data["allow_unauthenticated"],
         )
+        return {"url_id": url_id}
 
     def delete_proxied_url(call: ServiceCall) -> None:
         """Delete a proxied URL."""
@@ -130,6 +131,7 @@ async def async_setup_entry(
             SERVICE_CREATE_PROXIED_URL,
             create_proxied_url,
             CREATE_PROXIED_URL_SCHEMA,
+            supports_response=SupportsResponse.OPTIONAL,
         )
         hass.services.async_register(
             DOMAIN,
