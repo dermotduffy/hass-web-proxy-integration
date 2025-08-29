@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-import urllib
+import urllib.parse
 import uuid
 from typing import TYPE_CHECKING, Any
 
@@ -14,6 +14,7 @@ from hass_web_proxy_lib import (
     HASSWebProxyLibNotFoundRequestError,
     ProxiedURL,
     ProxyView,
+    WebsocketProxyView,
 )
 from homeassistant.core import ServiceResponse, SupportsResponse, callback
 from homeassistant.exceptions import ServiceValidationError
@@ -91,6 +92,7 @@ async def async_setup_entry(
 ) -> None:
     """Set up the HASS web proxy entry."""
     session = async_get_clientsession(hass)
+    hass.http.register_view(V0WSProxyView(hass, session))
     hass.http.register_view(V0ProxyView(hass, session))
 
     entry.runtime_data = HASSWebProxyData(
@@ -157,13 +159,12 @@ async def async_unload_entry(
         hass.services.async_remove(DOMAIN, SERVICE_DELETE_PROXIED_URL)
 
 
-class HAProxyView(ProxyView):
-    """A proxy view for HomeAssistant."""
+class BaseProxy:
+    """A proxy base for HomeAssistant."""
 
-    def __init__(self, hass: HomeAssistant, websession: aiohttp.ClientSession) -> None:
+    def __init__(self, hass: HomeAssistant) -> None:
         """Initialize the HASS Web Proxy view."""
         self._hass = hass
-        super().__init__(websession)
 
     def _get_config_entry(self) -> HASSWebProxyConfigEntry:
         """Get the config entry."""
@@ -255,8 +256,35 @@ class HAProxyView(ProxyView):
         return SSLCipherList.PYTHON_DEFAULT
 
 
-class V0ProxyView(HAProxyView):
+class HTTPProxyView(BaseProxy, ProxyView):
+    """A HTTP proxy endpoint."""
+
+    def __init__(self, hass: HomeAssistant, websession: aiohttp.ClientSession) -> None:
+        """Initialize the HASS HTTP Proxy view."""
+        self._hass = hass
+        super().__init__(hass)
+        ProxyView.__init__(self, websession)
+
+
+class WSProxyView(BaseProxy, WebsocketProxyView):
+    """A Websocket proxy endpoint."""
+
+    def __init__(self, hass: HomeAssistant, websession: aiohttp.ClientSession) -> None:
+        """Initialize the HASS Websocket Proxy view."""
+        self._hass = hass
+        super().__init__(hass)
+        WebsocketProxyView.__init__(self, websession)
+
+
+class V0ProxyView(HTTPProxyView):
     """A v0 proxy endpoint."""
 
     url = "/api/hass_web_proxy/v0/"
     name = "api:hass_web_proxy:v0"
+
+
+class V0WSProxyView(WSProxyView):
+    """A v0 websocket proxy endpoint."""
+
+    url = "/api/hass_web_proxy/v0/ws"
+    name = "api:hass_web_proxy:v0:ws"

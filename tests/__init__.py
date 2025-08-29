@@ -19,7 +19,7 @@ def create_mock_hass_web_proxy_config_entry(
     hass: HomeAssistant,
     options: MappingProxyType[str, Any] | None = None,
     entry_id: str | None = TEST_CONFIG_ENTRY_ID,
-    title: str | None = TEST_TITLE,
+    title: str = TEST_TITLE,
 ) -> ConfigEntry:
     """Add a test config entry."""
     config_entry: MockConfigEntry = MockConfigEntry(
