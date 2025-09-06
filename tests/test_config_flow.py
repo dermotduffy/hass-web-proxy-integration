@@ -5,7 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
-from homeassistant import config_entries, data_entry_flow
+from homeassistant import config_entries
+from homeassistant.data_entry_flow import FlowResultType
 
 from custom_components.hass_web_proxy.const import (
     CONF_DYNAMIC_URLS,
@@ -40,7 +41,7 @@ async def test_user_multiple_forbidden(hass: HomeAssistant) -> None:
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
-    assert result["type"] == data_entry_flow.RESULT_TYPE_ABORT
+    assert result["type"] == FlowResultType.ABORT
     assert result["reason"] == "single_instance_allowed"
 
 
@@ -55,7 +56,7 @@ async def test_options(hass: HomeAssistant) -> None:
         await hass.async_block_till_done()
 
         result = await hass.config_entries.options.async_init(config_entry.entry_id)
-        assert result["type"] == data_entry_flow.RESULT_TYPE_FORM
+        assert result["type"] == FlowResultType.FORM
 
         result = await hass.config_entries.options.async_configure(
             result["flow_id"],
@@ -67,7 +68,7 @@ async def test_options(hass: HomeAssistant) -> None:
             },
         )
         await hass.async_block_till_done()
-        assert result["type"] == data_entry_flow.RESULT_TYPE_CREATE_ENTRY
+        assert result["type"] == FlowResultType.CREATE_ENTRY
         assert result["data"][CONF_URL_PATTERNS] == ["http://localhost"]
         assert result["data"][CONF_SSL_VERIFICATION]
         assert result["data"][CONF_SSL_CIPHERS] == "default"
