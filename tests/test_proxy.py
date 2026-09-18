@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import datetime
+import gzip
+import json
 import urllib.parse
 import uuid
 from http import HTTPStatus
@@ -12,6 +14,7 @@ from typing import TYPE_CHECKING, Any
 
 import aiohttp
 import pytest
+from aiohttp import hdrs, web
 from homeassistant.exceptions import ServiceValidationError
 
 from custom_components.hass_web_proxy.const import (
@@ -83,6 +86,73 @@ async def test_proxy_view_success(
         f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(str(local_server))}"
     )
     assert resp.status == HTTPStatus.OK
+
+
+async def test_proxy_view_gzip_does_not_truncate_body(
+    hass: HomeAssistant,
+    hass_client: Any,
+    aiohttp_server: Any,
+) -> None:
+    """Verify gzip upstream bodies are not cut off at the compressed length."""
+    uncompressed = json.dumps(
+        {
+            "status": "success",
+            "data": {
+                "resultType": "matrix",
+                "result": [
+                    {
+                        "metric": {
+                            "__name__": "upsOutputPower",
+                            "target": "ups0",
+                        },
+                        "values": [[index, str(index)] for index in range(80)],
+                    }
+                ],
+            },
+        }
+    ).encode()
+    compressed = gzip.compress(uncompressed)
+    assert len(compressed) < len(uncompressed)
+
+    async def gzip_handler(_request: web.Request) -> web.Response:
+        return web.Response(
+            body=compressed,
+            headers={
+                hdrs.CONTENT_TYPE: "application/json",
+                hdrs.CONTENT_ENCODING: "gzip",
+                hdrs.CONTENT_LENGTH: str(len(compressed)),
+            },
+        )
+
+    app = web.Application()
+    app.router.add_get("/", gzip_handler)
+    server = await aiohttp_server(app)
+    local_server = str(server.make_url("/"))
+
+    config_entry = create_mock_hass_web_proxy_config_entry(
+        hass,
+        MappingProxyType(
+            {
+                **TEST_OPTIONS,
+                CONF_URL_PATTERNS: [local_server],
+            }
+        ),
+    )
+    await setup_mock_hass_web_proxy_config_entry(hass, config_entry)
+    await async_proxy_setup_entry(hass, config_entry)
+
+    authenticated_hass_client = await hass_client()
+    resp = await authenticated_hass_client.get(
+        f"/api/hass_web_proxy/v0/?url={urllib.parse.quote_plus(local_server)}"
+    )
+    body = await resp.read()
+
+    assert resp.status == HTTPStatus.OK
+    assert hdrs.CONTENT_ENCODING not in resp.headers
+    assert body == uncompressed
+    assert json.loads(body)
+    if hdrs.CONTENT_LENGTH in resp.headers:
+        assert int(resp.headers[hdrs.CONTENT_LENGTH]) == len(uncompressed)
 
 
 @pytest.mark.usefixtures("local_server")
