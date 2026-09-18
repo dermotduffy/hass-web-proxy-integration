@@ -7,14 +7,17 @@ import urllib.parse
 import uuid
 from typing import TYPE_CHECKING, Any
 
+import hass_web_proxy_lib
 import urlmatch
 import voluptuous as vol
+from aiohttp import hdrs
 from hass_web_proxy_lib import (
     LOGGER,
     HASSWebProxyLibNotFoundRequestError,
     ProxiedURL,
     ProxyView,
     WebsocketProxyView,
+    _response_header as _lib_response_header,
 )
 from homeassistant.core import ServiceResponse, SupportsResponse, callback
 from homeassistant.exceptions import ServiceValidationError
@@ -57,6 +60,29 @@ if TYPE_CHECKING:
     import aiohttp
     from aiohttp import web
     from homeassistant.core import HomeAssistant, ServiceCall
+
+# aiohttp auto-decompresses gzip/deflate/br, then hass-web-proxy-lib strips
+# Content-Encoding but keeps the original Content-Length (compressed size).
+_COMPRESSED_CONTENT_ENCODINGS = frozenset({"br", "compress", "deflate", "gzip", "zstd"})
+
+
+def _response_header(response: aiohttp.ClientResponse) -> dict[str, str]:
+    """Build proxied response headers without a stale Content-Length."""
+    headers = _lib_response_header(response)
+    content_encoding = response.headers.get(hdrs.CONTENT_ENCODING, "")
+    if any(
+        encoding.strip().lower() in _COMPRESSED_CONTENT_ENCODINGS
+        for encoding in content_encoding.split(",")
+    ):
+        return {
+            name: value
+            for name, value in headers.items()
+            if name != hdrs.CONTENT_LENGTH
+        }
+    return headers
+
+
+hass_web_proxy_lib._response_header = _response_header  # noqa: SLF001
 
 
 CREATE_PROXIED_URL_SCHEMA = vol.Schema(
